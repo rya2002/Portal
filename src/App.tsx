@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import { HomePage } from './components/HomePage';
-import { Login } from './components/Login';
+import HomePage from './components/HomePage';
+import Login  from './components/Login';
 import { ForumLayout } from './components/ForumLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
