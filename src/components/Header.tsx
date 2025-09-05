@@ -1,45 +1,55 @@
+// Header.tsx
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Link } from "react-router-dom";
 
-function Header() {
-  const { user } = useAuth();
-  const currentUser = user || null;
+const Header: React.FC = () => {
+  const { user, logout } = useAuth();
+  const location = useLocation();
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
-        {/* Título */}
-        <h1 className="text-2xl font-bold text-gray-800">
-          NEJUSC - Portal Universitário
-        </h1>
+    <header className="bg-white shadow">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-16 items-center">
+        {/* Esquerda */}
+        <div className="flex space-x-6">
+          <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium">
+            Início
+          </Link>
+          <Link to="/forum" className="text-gray-700 hover:text-blue-600 font-medium">
+            Fórum
+          </Link>
+          <Link to="/biblioteca" className="text-gray-700 hover:text-blue-600 font-medium">
+            Biblioteca
+          </Link>
+        </div>
 
-        {/* Login ou Perfil */}
-        {!currentUser ? (
-          <Link
-            to="/login"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Login
-          </Link>
-        ) : (
-          <Link
-            to="/perfil"
-            className="flex items-center space-x-3 hover:opacity-80 transition"
-          >
-            <div className="text-right hidden md:block">
-              <p className="text-sm font-medium text-gray-800">{currentUser.name}</p>
-              <p className="text-xs text-gray-600">Perfil</p>
-            </div>
-            <img
-              src={currentUser.avatar}
-              alt={currentUser.name}
-              className="w-10 h-10 rounded-full object-cover border-2 border-blue-100"
-            />
-          </Link>
-        )}
+        {/* Direita */}
+        <div>
+          {user ? (
+            <Link
+              to="/perfil"
+              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              <img
+                src={user.avatar || "https://via.placeholder.com/30"}
+                alt="avatar"
+                className="w-8 h-8 rounded-full"
+              />
+              <span>{user.name}</span>
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              Fazer Login
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );
-}
+};
 
 export default Header;
+

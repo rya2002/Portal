@@ -50,20 +50,20 @@ export interface UserManagement {
 // Dados mockados para diferentes tipos de usuário
 export const mockUsers: Record<string, User> = {
   professor: {
-    name: 'Dr. Maria Santos',
+    name: 'Dr. Maria de Fátima',
     email: 'maria.santos@nejusc.unijorge.edu.br',
     userType: 'professor',
-    avatar: 'https://images.pexels.com/photos/3785077/pexels-photo-3785077.jpeg?auto=compress&cs=tinysrgb&w=150',
+    avatar: '',
     joinDate: 'Janeiro 2022',
     institution: 'NEJUSC - Unijorge Salvador BA',
     department: 'Departamento de Ciências Sociais',
     permissions: ['publish', 'comment', 'review', 'moderate', 'manage_permissions']
   },
   'aluno-comum': {
-    name: 'João Silva',
+    name: 'Ryan Maia',
     email: 'joao.silva@estudante.unijorge.edu.br',
     userType: 'aluno-comum',
-    avatar: 'https://images.pexels.com/photos/1832323/pexels-photo-1832323.jpeg?auto=compress&cs=tinysrgb&w=150',
+    avatar: '',
     joinDate: 'Março 2023',
     institution: 'Unijorge Salvador BA',
     department: 'Curso de Direito',

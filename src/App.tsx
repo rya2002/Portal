@@ -7,6 +7,7 @@ import { ForumLayout } from './components/ForumLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import ProfilePage from "./components/ProfilePage";
 import Header from "./components/Header";
+import LibraryPage from './components/LibraryPage';
 
 function AppContent() {
   const { user } = useAuth();
@@ -21,6 +22,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/biblioteca" element={<LibraryPage />} />
         <Route path="/forum" element={<ForumLayout />} />
         <Route path="/perfil" element={<ProfilePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -37,6 +39,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/biblioteca" element={<LibraryPage />} />
             <Route path="/forum" element={<ForumLayout />} />
             <Route path="/perfil" element={<ProfilePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />

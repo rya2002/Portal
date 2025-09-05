@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, Users, BookOpen, Award, ArrowRight } from 'lucide-react';
+import { MessageSquare, Users, BookOpen, Award, ArrowRight, Book } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -17,6 +17,7 @@ export default function HomePage() {
             </div>
             <nav className="flex items-center space-x-6">
               <Link to="/" className="text-gray-600 hover:text-gray-900">Início</Link>
+              <Link to="/Biblioteca" className="text-gray-600 hover:text-gray-900">Biblioteca</Link>
               <Link to="/forum" className="text-gray-600 hover:text-gray-900">Fórum</Link>
               <Link to="/login" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                 Login
@@ -37,23 +38,28 @@ export default function HomePage() {
             Conecte-se com a comunidade acadêmica, participe de discussões enriquecedoras 
             e compartilhe conhecimento em nossa plataforma educacional.
           </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-16">
-            <Link
-              to="/forum"
-              className="flex items-center space-x-2 bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg w-full sm:w-auto justify-center"
-            >
-              <MessageSquare className="w-5 h-5" />
-              <span>Acessar Fórum</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link
-              to="/login"
-              className="flex items-center space-x-2 border border-gray-300 text-gray-700 px-8 py-4 rounded-lg hover:bg-gray-50 transition-colors font-medium text-lg w-full sm:w-auto justify-center"
-            >
-              <span>Fazer Login</span>
-            </Link>
-          </div>
+
+        <div className="flex flex-col items-center justify-center space-y-4 mb-16">
+          <Link
+            to="/biblioteca"
+            className="flex items-center space-x-2 bg-blue-600 text-white px-12 py-5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg w-full sm:w-[420px] justify-center"
+          >
+          <Book className="w-6 h-6" />
+            <span>Biblioteca</span>
+            <ArrowRight className="w-6 h-6" />
+          </Link>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 w-full">
+          <Link
+          to="/forum"
+          className="flex items-center space-x-2 bg-blue-600 text-white px-12 py-5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg w-full sm:w-[420px] justify-center"
+          >
+          <MessageSquare className="w-6 h-6" />
+          <span>Acessar Fórum</span>
+          <ArrowRight className="w-6 h-6" />
+          </Link>
+  </div>
+</div>
 
           {/* Features */}
           <div className="grid md:grid-cols-3 gap-8 mt-20">

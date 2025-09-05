@@ -1,0 +1,142 @@
+import React from 'react';
+import { Search, Download, RotateCcw } from 'lucide-react';
+import { FilterState } from '../../types';
+import { extrairAreas, extrairAutores, ordenarSemestres } from '../../utils/semestre';
+import { artigosMock, revistasMock } from '../../data/mockData';
+
+interface FiltrosEBuscaProps {
+  filtros: FilterState;
+  onFiltrosChange: (filtros: FilterState) => void;
+}
+
+export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBuscaProps) {
+  const areas = extrairAreas(artigosMock, revistasMock);
+  const autores = extrairAutores(artigosMock, revistasMock);
+  
+  const semestres = ordenarSemestres(
+    Array.from(new Set([...artigosMock, ...revistasMock].map(item => {
+      const data = new Date(item.publicacao);
+      const ano = data.getFullYear();
+      const mes = data.getMonth() + 1;
+      const semestre = (mes <= 6) ? 1 : 2;
+      return `${ano}.${semestre}`;
+    })))
+  );
+
+  const limparFiltros = () => {
+    onFiltrosChange({
+      busca: '',
+      area: '',
+      semestre: '',
+      autor: '',
+      tipo: 'todos'
+    });
+  };
+
+  const handleExportar = () => {
+    console.log('Exportar resultados');
+  };
+
+  return (
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+      {/* Barra de Busca */}
+      <div className="mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar por título, autor, área ou palavra-chave..."
+            value={filtros.busca}
+            onChange={(e) => onFiltrosChange({ ...filtros, busca: e.target.value })}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          />
+        </div>
+      </div>
+
+      {/* Filtros */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Área
+          </label>
+          <select
+            value={filtros.area}
+            onChange={(e) => onFiltrosChange({ ...filtros, area: e.target.value })}
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">Todas as áreas</option>
+            {areas.map(area => (
+              <option key={area} value={area}>{area}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Semestre
+          </label>
+          <select
+            value={filtros.semestre}
+            onChange={(e) => onFiltrosChange({ ...filtros, semestre: e.target.value })}
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">Todos os semestres</option>
+            {semestres.map(semestre => (
+              <option key={semestre} value={semestre}>{semestre}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Autor
+          </label>
+          <select
+            value={filtros.autor}
+            onChange={(e) => onFiltrosChange({ ...filtros, autor: e.target.value })}
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">Todos os autores</option>
+            {autores.map(autor => (
+              <option key={autor} value={autor}>{autor}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Tipo
+          </label>
+          <select
+            value={filtros.tipo}
+            onChange={(e) => onFiltrosChange({ ...filtros, tipo: e.target.value as any })}
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          >
+            <option value="todos">Todos</option>
+            <option value="artigos">Apenas Artigos</option>
+            <option value="revistas">Apenas Revistas</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Ações */}
+      <div className="flex justify-between items-center">
+        <button
+          onClick={limparFiltros}
+          className="flex items-center space-x-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+        >
+          <RotateCcw className="h-4 w-4" />
+          <span>Limpar Filtros</span>
+        </button>
+
+        <button
+          onClick={handleExportar}
+          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <Download className="h-4 w-4" />
+          <span>Exportar</span>
+        </button>
+      </div>
+    </div>
+  );
+}
