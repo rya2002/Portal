@@ -10,7 +10,6 @@ import PermissionsManagement from "../components/Profile/PermissionsManagement";
 import ReviewSection from "../components/Profile/ReviewSection";
 
 import { 
-  mockUsers, 
   mockPublishedArticles, 
   mockAccessedArticles, 
   mockPosts, 
@@ -18,62 +17,57 @@ import {
   mockUsersManagement
 } from "../data/mockData";
 
+import { useAuth } from "../contexts/AuthContext";
+
 function ProfilePage() {
-  // Simular usuário logado - pode ser alterado para testar diferentes tipos
-  const [currentUserType] = useState<'visitante' | 'aluno-comum' | 'aluno-nejusc' | 'professor' | 'administrador'>('professor');
+  const { user } = useAuth();
   const [activeSection, setActiveSection] = useState('perfil');
-  
-  const currentUser = mockUsers[currentUserType];
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Você precisa estar logado para acessar o perfil.</p>
+      </div>
+    );
+  }
 
   const renderContent = () => {
     switch (activeSection) {
       case 'perfil':
-        return <UserProfile user={currentUser} />;
+        return <UserProfile user={user} />;
       
       case 'artigos-publicados':
-        if (!['aluno-nejusc', 'professor', 'administrador'].includes(currentUserType)) return null;
-        return (
-          <ArticlesList 
-            articles={mockPublishedArticles} 
-            type="published" 
-            userType={currentUserType} 
-          />
-        );
+        if (!['aluno-nejusc', 'professor', 'administrador'].includes(user.userType)) return null;
+        return <ArticlesList articles={mockPublishedArticles} type="published" userType={user.userType} />;
       
       case 'artigos-acessados':
-        return (
-          <ArticlesList 
-            articles={mockAccessedArticles} 
-            type="accessed" 
-            userType={currentUserType} 
-          />
-        );
+        return <ArticlesList articles={mockAccessedArticles} type="accessed" userType={user.userType} />;
       
       case 'postagens':
-        if (!['aluno-nejusc', 'professor', 'administrador'].includes(currentUserType)) return null;
+        if (!['aluno-nejusc', 'professor', 'administrador'].includes(user.userType)) return null;
         return <PostsList posts={mockPosts} />;
       
       case 'comentarios':
-        if (currentUserType === 'visitante') return null;
+        if (user.userType === 'visitante') return null;
         return <CommentsList comments={mockComments} />;
       
       case 'revisoes':
-        if (!['professor', 'administrador'].includes(currentUserType)) return null;
-        return <ReviewSection userType={currentUserType} />;
+        if (!['professor', 'administrador'].includes(user.userType)) return null;
+        return <ReviewSection userType={user.userType} />;
       
       case 'gerenciar-permissoes':
-        if (!['professor', 'administrador'].includes(currentUserType)) return null;
-        return <PermissionsManagement currentUserType={currentUserType} />;
+        if (!['professor', 'administrador'].includes(user.userType)) return null;
+        return <PermissionsManagement currentUserType={user.userType} />;
       
       case 'gerenciar-usuarios':
-        if (currentUserType !== 'administrador') return null;
-        return <UserManagement users={mockUsersManagement} currentUserType={currentUserType} />;
+        if (user.userType !== 'administrador') return null;
+        return <UserManagement users={mockUsersManagement} currentUserType={user.userType} />;
       
       case 'analytics':
       case 'configuracoes':
       case 'moderacao':
       case 'gerenciar-conteudo':
-        if (currentUserType !== 'administrador') return null;
+        if (user.userType !== 'administrador') return null;
         return <AdminSection section={activeSection} />;
       
       default:
@@ -101,7 +95,7 @@ function ProfilePage() {
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
         <Sidebar 
-          userType={currentUserType} 
+          userType={user.userType} 
           activeSection={activeSection} 
           onSectionChange={setActiveSection} 
         />
@@ -120,12 +114,12 @@ function ProfilePage() {
               
               <div className="flex items-center space-x-4">
                 <div className="text-right hidden md:block">
-                  <p className="text-sm font-medium text-gray-800">{currentUser.name}</p>
-                  <p className="text-xs text-gray-600">{getUserTypeLabel(currentUser.userType)}</p>
+                  <p className="text-sm font-medium text-gray-800">{user.name}</p>
+                  <p className="text-xs text-gray-600">{getUserTypeLabel(user.userType)}</p>
                 </div>
                 <img
-                  src={currentUser.avatar}
-                  alt={currentUser.name}
+                  src={user.avatar}
+                  alt={user.name}
                   className="w-10 h-10 rounded-full object-cover border-2 border-blue-100"
                 />
               </div>

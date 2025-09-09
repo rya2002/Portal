@@ -11,40 +11,40 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  
 
-  const from = (location.state as any)?.from?.pathname || '/forum';
+  const from = (location.state as any)?.from?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  e.preventDefault();
+  setError('');
+  setLoading(true);
 
-    try {
-      await login(email, password);
-      navigate(from, { replace: true });
-    } catch (err) {
-      setError('Credenciais inválidas');
-    } finally {
-      setLoading(false);
-    }
+  try {
+  await login(email, password);
+  navigate(from, { replace: true });  
+} catch (err) {
+  setError("Credenciais inválidas");
+}
+};
+
+const handleDemoLogin = async (userType: 'student' | 'admin') => {
+  const demoUsers = {
+    student: { email: 'ryan.maia@estudante.unijorge.edu.br', password: 'demo123' },
+    admin: { email: 'maria.fatima@nejusc.unijorge.edu.br', password: 'demo123' }
   };
 
-  const handleDemoLogin = async (userType: 'student' | 'admin') => {
-    const demoEmails = {
-      student: 'joao@student.com',
-      admin: 'maria@admin.com'
-    };
+  const { email, password } = demoUsers[userType];
+  setEmail(email);
+  setPassword(password);
 
-    setEmail(demoEmails[userType]);
-    setPassword('demo123');
-    
-    try {
-      await login(demoEmails[userType], 'demo123');
-      navigate(from, { replace: true });
-    } catch (err) {
-      setError('Erro ao fazer login');
-    }
-  };
+  try {
+    await login(email, password);
+    navigate(from, { replace: true });
+  } catch (err) {
+    setError('Erro ao fazer login');
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -120,21 +120,21 @@ export default function Login() {
               onClick={() => handleDemoLogin('student')}
               className="w-full bg-green-100 text-green-800 py-2 px-4 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
             >
-              🎓 Entrar como Aluno (joao@student.com)
+              🎓 Entrar como Aluno (Ryan Maia)
             </button>
             
             <button
               onClick={() => handleDemoLogin('admin')}
               className="w-full bg-purple-100 text-purple-800 py-2 px-4 rounded-lg hover:bg-purple-200 transition-colors text-sm font-medium"
             >
-              🛠️ Entrar como Administrador (maria@admin.com)
+              🛠️ Entrar como Professor (Profª Maria de Fátima)
             </button>
           </div>
         </div>
 
         <div className="mt-6 text-center">
           <button
-            onClick={() => navigate('/forum')}
+            onClick={() => navigate('/')}
             className="text-blue-600 hover:text-blue-800 text-sm font-medium"
           >
             Continuar como visitante

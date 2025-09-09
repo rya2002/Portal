@@ -1,6 +1,7 @@
 export interface User {
   name: string;
   email: string;
+  password: string;
   userType: 'visitante' | 'aluno-comum' | 'aluno-nejusc' | 'professor' | 'administrador';
   avatar: string;
   joinDate: string;
@@ -51,7 +52,8 @@ export interface UserManagement {
 export const mockUsers: Record<string, User> = {
   professor: {
     name: 'Dr. Maria de Fátima',
-    email: 'maria.santos@nejusc.unijorge.edu.br',
+    email: 'maria.fatima@nejusc.unijorge.edu.br',
+    password: 'demo123',
     userType: 'professor',
     avatar: '',
     joinDate: 'Janeiro 2022',
@@ -61,7 +63,8 @@ export const mockUsers: Record<string, User> = {
   },
   'aluno-comum': {
     name: 'Ryan Maia',
-    email: 'joao.silva@estudante.unijorge.edu.br',
+    email: 'ryan.maia@estudante.unijorge.edu.br',
+    password: 'demo123',
     userType: 'aluno-comum',
     avatar: '',
     joinDate: 'Março 2023',
@@ -72,8 +75,9 @@ export const mockUsers: Record<string, User> = {
   'aluno-nejusc': {
     name: 'Ana Oliveira',
     email: 'ana.oliveira@nejusc.unijorge.edu.br',
+    password:'demo123',
     userType: 'aluno-nejusc',
-    avatar: 'https://images.pexels.com/photos/3785104/pexels-photo-3785104.jpeg?auto=compress&cs=tinysrgb&w=150',
+    avatar: '',
     joinDate: 'Agosto 2023',
     institution: 'NEJUSC - Unijorge Salvador BA',
     department: 'Núcleo de Estudos em Justiça Social',
@@ -82,6 +86,7 @@ export const mockUsers: Record<string, User> = {
   administrador: {
     name: 'Prof. Carlos Costa',
     email: 'carlos.costa@nejusc.unijorge.edu.br',
+    password: 'demo123',
     userType: 'administrador',
     avatar: 'https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=150',
     joinDate: 'Janeiro 2021',
@@ -89,15 +94,6 @@ export const mockUsers: Record<string, User> = {
     department: 'Coordenação Acadêmica',
     permissions: ['full_access', 'user_management', 'content_management', 'system_config']
   },
-  visitante: {
-    name: 'Roberto Mendes',
-    email: 'roberto.mendes@gmail.com',
-    userType: 'visitante',
-    avatar: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=150',
-    joinDate: 'Dezembro 2023',
-    institution: 'Universidade Federal da Bahia',
-    permissions: ['view']
-  }
 };
 
 export const mockPublishedArticles: Article[] = [
@@ -197,7 +193,7 @@ export const mockComments: Comment[] = [
     date: '19 de Janeiro de 2024',
     relatedTitle: 'Justiça Social e Direitos Humanos na Era Digital',
     relatedLink: '#',
-    author: 'Dr. Maria Santos'
+    author: 'Dr. Maria de Fátima'
   },
   {
     id: 2,
