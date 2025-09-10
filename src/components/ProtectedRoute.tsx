@@ -20,8 +20,8 @@ export function ProtectedRoute({
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (requiredRole && (!user || user.role !== requiredRole)) {
-    return <Navigate to="/forum" replace />;
+  if (requiredRole && (!user || user.userType !== requiredRole)) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

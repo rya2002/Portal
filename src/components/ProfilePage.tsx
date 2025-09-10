@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Profile/Sidebar";
-import UserProfile from "../components/Profile/UserProfile";
 import ArticlesList from "../components/Profile/ArticlesList";
 import PostsList from "../components/Profile/PostsList";
 import CommentsList from "../components/Profile/CommentsList";
@@ -9,72 +9,125 @@ import UserManagement from "../components/Profile/UserManagement";
 import PermissionsManagement from "../components/Profile/PermissionsManagement";
 import ReviewSection from "../components/Profile/ReviewSection";
 
-import { 
-  mockPublishedArticles, 
-  mockAccessedArticles, 
-  mockPosts, 
+import {
+  mockPublishedArticles,
+  mockAccessedArticles,
+  mockPosts,
   mockComments,
-  mockUsersManagement
+  mockUsersManagement,
 } from "../data/mockData";
 
 import { useAuth } from "../contexts/AuthContext";
 
 function ProfilePage() {
-  const { user } = useAuth();
-  const [activeSection, setActiveSection] = useState('perfil');
+  const { user, logout } = useAuth();
+  const [activeSection, setActiveSection] = useState("perfil");
+  const navigate = useNavigate();
 
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Você precisa estar logado para acessar o perfil.</p>
+        <p className="text-gray-600">
+          Você precisa estar logado para acessar o perfil.
+        </p>
       </div>
     );
   }
 
+  const handleLogout = () => {
+    logout();
+    navigate("/"); // 🔹 Redireciona para HomePage após logout
+  };
+
   const renderContent = () => {
     switch (activeSection) {
-      case 'perfil':
-        return <UserProfile user={user} />;
-      
-      case 'artigos-publicados':
-        if (!['aluno-nejusc', 'professor', 'administrador'].includes(user.userType)) return null;
-        return <ArticlesList articles={mockPublishedArticles} type="published" userType={user.userType} />;
-      
-      case 'artigos-acessados':
-        return <ArticlesList articles={mockAccessedArticles} type="accessed" userType={user.userType} />;
-      
-      case 'postagens':
-        if (!['aluno-nejusc', 'professor', 'administrador'].includes(user.userType)) return null;
+      case "perfil":
+        return (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center space-x-6">
+              <img
+                src={user.avatar || "/default-avatar.png"}
+                alt={user.name}
+                className="w-24 h-24 rounded-full border-4 border-blue-500"
+              />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
+                <p className="text-gray-600">{user.email}</p>
+                <p className="text-sm text-gray-500 capitalize">
+                  Função: {getUserTypeLabel(user.userType)}
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "artigos-publicados":
+        if (
+          !["aluno-nejusc", "professor", "administrador"].includes(user.userType)
+        )
+          return null;
+        return (
+          <ArticlesList
+            articles={mockPublishedArticles}
+            type="published"
+            userType={user.userType}
+          />
+        );
+
+      case "artigos-acessados":
+        return (
+          <ArticlesList
+            articles={mockAccessedArticles}
+            type="accessed"
+            userType={user.userType}
+          />
+        );
+
+      case "postagens":
+        if (
+          !["aluno-nejusc", "professor", "administrador"].includes(user.userType)
+        )
+          return null;
         return <PostsList posts={mockPosts} />;
-      
-      case 'comentarios':
-        if (user.userType === 'visitante') return null;
+
+      case "comentarios":
+        if (user.userType === "visitante") return null;
         return <CommentsList comments={mockComments} />;
-      
-      case 'revisoes':
-        if (!['professor', 'administrador'].includes(user.userType)) return null;
+
+      case "revisoes":
+        if (!["professor", "administrador"].includes(user.userType)) return null;
         return <ReviewSection userType={user.userType} />;
-      
-      case 'gerenciar-permissoes':
-        if (!['professor', 'administrador'].includes(user.userType)) return null;
+
+      case "gerenciar-permissoes":
+        if (!["professor", "administrador"].includes(user.userType)) return null;
         return <PermissionsManagement currentUserType={user.userType} />;
-      
-      case 'gerenciar-usuarios':
-        if (user.userType !== 'administrador') return null;
-        return <UserManagement users={mockUsersManagement} currentUserType={user.userType} />;
-      
-      case 'analytics':
-      case 'configuracoes':
-      case 'moderacao':
-      case 'gerenciar-conteudo':
-        if (user.userType !== 'administrador') return null;
+
+      case "gerenciar-usuarios":
+        if (user.userType !== "administrador") return null;
+        return (
+          <UserManagement
+            users={mockUsersManagement}
+            currentUserType={user.userType}
+          />
+        );
+
+      case "analytics":
+      case "configuracoes":
+      case "moderacao":
+      case "gerenciar-conteudo":
+        if (user.userType !== "administrador") return null;
         return <AdminSection section={activeSection} />;
-      
+
       default:
         return (
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Seção não encontrada</h2>
-            <p className="text-gray-600">A seção solicitada não foi encontrada ou você não tem permissão para acessá-la.</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">
+              Seção não encontrada
+            </h2>
+            <p className="text-gray-600">
+              A seção solicitada não foi encontrada ou você não tem permissão
+              para acessá-la.
+            </p>
           </div>
         );
     }
@@ -82,24 +135,24 @@ function ProfilePage() {
 
   const getUserTypeLabel = (type: string) => {
     const labels = {
-      visitante: 'Visitante',
-      'aluno-comum': 'Aluno',
-      'aluno-nejusc': 'Aluno NEJUSC',
-      professor: 'Professor',
-      administrador: 'Administrador'
+      visitante: "Visitante",
+      "aluno-comum": "Aluno",
+      "aluno-nejusc": "Aluno NEJUSC",
+      professor: "Professor",
+      administrador: "Administrador",
     };
     return labels[type as keyof typeof labels];
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
       <div className="flex">
-        <Sidebar 
-          userType={user.userType} 
-          activeSection={activeSection} 
-          onSectionChange={setActiveSection} 
+        <Sidebar
+          userType={user.userType}
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
         />
-        
+
         <div className="flex-1 lg:ml-0">
           <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
             <div className="flex items-center justify-between">
@@ -111,11 +164,15 @@ function ProfilePage() {
                   Núcleo de Estudos em Justiça Social - Unijorge Salvador BA
                 </p>
               </div>
-              
+
               <div className="flex items-center space-x-4">
                 <div className="text-right hidden md:block">
-                  <p className="text-sm font-medium text-gray-800">{user.name}</p>
-                  <p className="text-xs text-gray-600">{getUserTypeLabel(user.userType)}</p>
+                  <p className="text-sm font-medium text-gray-800">
+                    {user.name}
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    {getUserTypeLabel(user.userType)}
+                  </p>
                 </div>
                 <img
                   src={user.avatar}
@@ -125,16 +182,24 @@ function ProfilePage() {
               </div>
             </div>
           </header>
-          
+
           <main className="p-6">
-            <div className="max-w-7xl mx-auto">
-              {renderContent()}
-            </div>
+            <div className="max-w-7xl mx-auto">{renderContent()}</div>
           </main>
         </div>
       </div>
+
+      {/* 🔹 Botão de Sair no canto inferior direito */}
+      <button
+        onClick={handleLogout}
+        className="absolute bottom-4 right-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg transition-colors"
+      >
+        Sair
+      </button>
     </div>
   );
 }
 
 export default ProfilePage;
+
+

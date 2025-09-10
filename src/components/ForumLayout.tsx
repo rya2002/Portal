@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import Header from '../components/Header';
-import ForumNavigation from './ForumNavigation'; // ✅ import default (veja o item 2)
+import ForumNavigation from './ForumNavigation'; 
 import { ForumDiscussions } from './ForumDiscussions';
 import { AdminDashboard } from './AdminDashboard';
 import { PublicationRequest } from './PublicationRequest';

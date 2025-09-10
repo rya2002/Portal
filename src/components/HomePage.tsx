@@ -1,31 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare, Users, BookOpen, Award, ArrowRight, Book } from 'lucide-react';
+import Header from "../components/Header";
 
 export default function HomePage() {
-  return (
+    return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="bg-blue-600 rounded-lg p-2">
-                <MessageSquare className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900">Portal Acadêmico</h1>
-            </div>
-            <nav className="flex items-center space-x-6">
-              <Link to="/" className="text-gray-600 hover:text-gray-900">Início</Link>
-              <Link to="/Biblioteca" className="text-gray-600 hover:text-gray-900">Biblioteca</Link>
-              <Link to="/forum" className="text-gray-600 hover:text-gray-900">Fórum</Link>
-              <Link to="/login" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                Login
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
