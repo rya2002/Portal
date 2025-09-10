@@ -8,6 +8,7 @@ import ProfilePage from "./components/ProfilePage";
 import LibraryPage from './components/LibraryPage';
 import { ForumLayout } from './components/ForumLayout';
 import Header from "./components/Header";
+import { EventPage } from './components/EventPage';
 
 function AppContent() {
   const { user } = useAuth();
@@ -25,7 +26,9 @@ function AppContent() {
         <Route path="/perfil" element={<ProfilePage />} />
         <Route path="/biblioteca" element={<LibraryPage />} />
         <Route path="/forum" element={<ForumLayout />} />
+        <Route path="/evento" element={<EventPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </div>
   );
@@ -42,6 +45,7 @@ function App() {
             <Route path="/biblioteca" element={<LibraryPage />} />
             <Route path="/forum" element={<ForumLayout />} />
             <Route path="/perfil" element={<ProfilePage />} />
+            <Route path="/eventos" element={<EventPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

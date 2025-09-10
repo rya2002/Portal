@@ -28,7 +28,7 @@ function Header() {
             <Link to="/" className="text-gray-600 hover:text-gray-900">Início</Link>
             <Link to="/biblioteca" className="text-gray-600 hover:text-gray-900">Biblioteca</Link>
             <Link to="/forum" className="text-gray-600 hover:text-gray-900">Fórum</Link>
-
+            <Link to="/eventos" className = "text-gray-600 hover:text-gray-900">Eventos</Link>
             {!isAuthenticated ? (
               // 🔹 Visitante vê apenas o login
               <Link
@@ -53,12 +53,6 @@ function Header() {
                     {user?.name}
                   </span>
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="text-sm text-red-500 hover:text-red-700 transition"
-                >
-                  Sair
-                </button>
               </div>
             )}
           </nav>
