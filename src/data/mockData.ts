@@ -96,6 +96,47 @@ export const mockUsers: Record<string, User> = {
   },
 };
 
+export function toggleUserType(email: string): User | null {
+  const key = Object.keys(mockUsers).find((k) => mockUsers[k].email === email);
+  if (!key) return null;
+
+  const user = mockUsers[key];
+  if (user.userType === "aluno-comum") {
+    mockUsers[key] = { ...user, userType: "aluno-nejusc" };
+  } else if (user.userType === "aluno-nejusc") {
+    mockUsers[key] = { ...user, userType: "aluno-comum" };
+  }
+ return mockUsers[key];
+}
+
+export function promoteToNejusc(
+  actingUser: User,
+  targetEmail: string
+): string {
+  if (!['professor', 'administrador'].includes(actingUser.userType)) {
+    return "Permissão negada: apenas professores ou administradores podem promover.";
+  }
+
+
+  const target = Object.values(mockUsers).find(
+    (u) => u.email === targetEmail
+  );
+
+  if (!target) {
+    return "Usuário não encontrado.";
+  }
+
+  if (target.userType !== 'aluno-comum') {
+    return "Só alunos comuns podem ser promovidos.";
+  }
+
+  // Faz a promoção
+  target.userType = 'aluno-nejusc';
+  target.permissions = ['view', 'comment', 'publish', 'participate_research'];
+
+  return `${target.name} agora é Aluno NEJUSC!`;
+}
+
 export const mockPublishedArticles: Article[] = [
   {
     id: 1,

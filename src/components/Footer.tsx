@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
               <h3 className="text-lg font-bold">NEJUSC</h3>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed mb-4">
-              Núcleo de Estudos Jurídicos da Universidade do Sul de Santa Catarina. 
+              Núcleo de Estudos em Justiça Social da UNIJORGE de Salvador.
               Promovendo conhecimento, debate e desenvolvimento acadêmico através de 
               eventos, palestras e atividades educacionais.
             </p>
@@ -56,22 +56,22 @@ const Footer: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center text-gray-300">
                 <Mail className="h-5 w-5 mr-3 flex-shrink-0 text-blue-400" />
-                <a href="mailto:nejusc@unisul.br" className="hover:text-white transition-colors duration-200">
-                  nejusc@unisul.br
+                <a href="mailto:nejusc@unijorge.br" className="hover:text-white transition-colors duration-200">
+                  nejusc@unijorge.br
                 </a>
               </div>
               <div className="flex items-center text-gray-300">
                 <Phone className="h-5 w-5 mr-3 flex-shrink-0 text-blue-400" />
-                <a href="tel:+554832515000" className="hover:text-white transition-colors duration-200">
-                  (48) 3251-5000
+                <a href="tel:+557132068142" className="hover:text-white transition-colors duration-200">
+                  (71) 3206-8142
                 </a>
               </div>
               <div className="flex items-start text-gray-300">
                 <MapPin className="h-5 w-5 mr-3 flex-shrink-0 text-blue-400 mt-0.5" />
                 <div>
-                  <p>Campus Tubarão</p>
-                  <p className="text-sm">Universidade do Sul de Santa Catarina</p>
-                  <p className="text-sm">Tubarão, SC</p>
+                  <p>Campus Pararela</p>
+                  <p className="text-sm">Centro Universitário Jorge Amado</p>
+                  <p className="text-sm">Salvador, BA</p>
                 </div>
               </div>
             </div>
@@ -82,34 +82,21 @@ const Footer: React.FC = () => {
             <h3 className="text-lg font-semibold mb-4">Links Úteis</h3>
             <div className="space-y-2">
               <a 
-                href="https://unisul.br" 
+                href="https://www.unijorge.edu.br/"
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
-                Portal UNISUL
+                UNIJORGE
               </a>
+
               <a 
-                href="#" 
-                className="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Biblioteca Digital
-              </a>
-              <a 
-                href="#" 
+                href="https://portalaluno.unijorge.edu.br/"
                 className="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Portal do Aluno
-              </a>
-              <a 
-                href="#" 
-                className="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Eventos Anteriores
               </a>
             </div>
           </div>
@@ -119,7 +106,7 @@ const Footer: React.FC = () => {
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2024 NEJUSC - Núcleo de Estudos Jurídicos UNISUL. Todos os direitos reservados.
+              © 2024 NEJUSC - Núcleo de Estudos em Justiça Social UNIJORGE. Todos os direitos reservados.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors duration-200">

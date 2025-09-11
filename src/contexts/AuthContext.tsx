@@ -4,6 +4,7 @@ import { mockUsers, User } from "../data/mockData";
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -14,7 +15,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   const login = async (email: string, password: string) => {
-    // 🔹 Para demonstração, ignoramos a senha
     const foundUser = Object.values(mockUsers).find((u) => u.email === email);
 
     if (!foundUser) {
@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         isAuthenticated: !!user,
         login,
         logout,

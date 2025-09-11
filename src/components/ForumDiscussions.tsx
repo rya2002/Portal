@@ -41,7 +41,7 @@ export function ForumDiscussions() {
   const { user, isAuthenticated } = useAuth();
   const [posts] = useState<ForumPost[]>(mockPosts);
 
-  const canInteract = isAuthenticated && user?.role !== 'visitor';
+  const canInteract = isAuthenticated && user?.userType !== 'visitante';
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -73,11 +73,6 @@ export function ForumDiscussions() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Discussões do Fórum</h2>
-        {canInteract && (
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-            Nova Discussão
-          </button>
-        )}
       </div>
 
       <div className="space-y-4">

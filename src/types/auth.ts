@@ -2,7 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'visitor' | 'student' | 'admin';
+  role: 'visitante' | 'aluno' | 'aluno-nejusc' | 'professor' | 'admin';
   avatar?: string;
 }
 

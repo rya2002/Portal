@@ -15,6 +15,8 @@ import {
   mockPosts,
   mockComments,
   mockUsersManagement,
+  mockUsers,
+  promoteToNejusc,
 } from "../data/mockData";
 
 import { useAuth } from "../contexts/AuthContext";
@@ -58,6 +60,36 @@ function ProfilePage() {
                 </p>
               </div>
             </div>
+
+            {/* 🔹 Apenas para professores e administradores */}
+            {["professor", "administrador"].includes(user.userType) && (
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  Promover Alunos para NEJUSC
+                </h3>
+                <div className="space-y-3">
+                  {Object.values(mockUsers)
+                    .filter((u) => u.userType === "aluno-comum")
+                    .map((u) => (
+                      <div
+                        key={u.email}
+                        className="flex items-center justify-between p-3 border rounded-lg bg-gray-50"
+                      >
+                        <span className="text-gray-700">{u.name}</span>
+                        <button
+                          onClick={() => {
+                            const result = promoteToNejusc(user, u.email);
+                            alert(result);
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition"
+                        >
+                          Promover
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
         );
 
@@ -201,5 +233,6 @@ function ProfilePage() {
 }
 
 export default ProfilePage;
+
 
 

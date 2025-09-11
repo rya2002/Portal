@@ -27,6 +27,7 @@ function Header() {
           <nav className="flex items-center space-x-6">
             <Link to="/" className="text-gray-600 hover:text-gray-900">Início</Link>
             <Link to="/biblioteca" className="text-gray-600 hover:text-gray-900">Biblioteca</Link>
+            <Link to="/assistente" className="text-gray-600 hover:text-gray-900">Assistente</Link>
             <Link to="/forum" className="text-gray-600 hover:text-gray-900">Fórum</Link>
             <Link to="/eventos" className = "text-gray-600 hover:text-gray-900">Eventos</Link>
             {!isAuthenticated ? (

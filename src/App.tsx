@@ -6,9 +6,9 @@ import HomePage from './components/HomePage';
 import Login  from './components/Login';
 import ProfilePage from "./components/ProfilePage";
 import LibraryPage from './components/LibraryPage';
+import EventPage  from './components/EventPage';
 import { ForumLayout } from './components/ForumLayout';
 import Header from "./components/Header";
-import { EventPage } from './components/EventPage';
 
 function AppContent() {
   const { user } = useAuth();

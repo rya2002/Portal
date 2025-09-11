@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare, Users, BookOpen, Award, ArrowRight, Book } from 'lucide-react';
 import Header from "../components/Header";
+import Footer from './Footer';
 
 export default function HomePage() {
     return (
@@ -76,6 +77,7 @@ export default function HomePage() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

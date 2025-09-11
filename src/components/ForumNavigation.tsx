@@ -12,13 +12,14 @@ const ForumNavigation: React.FC<Props> = ({ activeTab, onTabChange }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const isAdmin   = ['admin', 'administrador'].includes(user?.userType || '');
-  const isStudent = ['student', 'aluno-comum', 'aluno-nejusc'].includes(user?.userType || '');
+  const isAdmin = ['administrador', 'professor'].includes(user?.userType || '');
+  const isAuthenticated    = user?.userType && user?.userType !== 'visitante';
 
-  const tabs = [
-    { id: 'discussions' as const, label: 'Discussões',      icon: MessageSquare, available: true     },
-    { id: 'manage'      as const, label: 'Gerenciar Fórum', icon: Settings,      available: isAdmin  },
-  ];
+const tabs = [
+  { id: 'discussions' as const, label: 'Discussões',      icon: MessageSquare, available: true     },
+  { id: 'manage'      as const, label: 'Gerenciar Fórum', icon: Settings,      available: isAdmin  },
+];
+
 
   return (
     <div className="bg-white shadow-sm border-b border-gray-200 mb-8">
@@ -48,14 +49,14 @@ const ForumNavigation: React.FC<Props> = ({ activeTab, onTabChange }) => {
 
           {/* Só o botão de Solicitar Publicação à direita */}
           <div>
-            {isStudent && (
-              <button
-                onClick={() => onTabChange('request-publication')}
-                className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Solicitar Publicação</span>
-              </button>
+            {isAuthenticated && (
+            <button
+              onClick={() => onTabChange('request-publication')}
+              className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Solicitar Publicação</span>
+            </button>
             )}
           </div>
         </div>

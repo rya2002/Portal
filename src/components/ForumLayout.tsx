@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import Header from '../components/Header';
+import ForumHeader from './ForumHeader';
+import { Import } from 'lucide-react';
 import ForumNavigation from './ForumNavigation'; 
 import { ForumDiscussions } from './ForumDiscussions';
 import { AdminDashboard } from './AdminDashboard';
@@ -11,8 +13,8 @@ export function ForumLayout() {
   const [activeTab, setActiveTab] = useState<'discussions' | 'manage' | 'request-publication'>('discussions');
 
   const content = useMemo(() => {
-    const isAdmin   = ['admin', 'administrador'].includes(user?.userType || '');
-    const isStudent = ['student', 'aluno-comum', 'aluno-nejusc'].includes(user?.userType || '');
+    const isAdmin = ['administrador', 'professor'].includes(user?.userType || '');
+    const isAuthenticated    = user?.userType && user?.userType !== 'visitante';
 
     switch (activeTab) {
       case 'discussions':
@@ -22,7 +24,7 @@ export function ForumLayout() {
         return isAdmin ? <AdminDashboard /> : <ForumDiscussions />;
 
       case 'request-publication':
-        return isStudent
+        return isAuthenticated
           ? <PublicationRequest onBack={() => setActiveTab('discussions')} />
           : <ForumDiscussions />;
 

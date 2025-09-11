@@ -40,15 +40,18 @@ export function AdminDashboard() {
   const [requests, setRequests] = useState<PublicationRequest[]>(mockRequests);
   const [activeSection, setActiveSection] = useState('overview');
 
-  if (user?.role !== 'admin') {
-    return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-        <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-red-800 mb-2">Acesso Negado</h3>
-        <p className="text-red-700">Você não tem permissão para acessar o painel administrativo.</p>
-      </div>
-    );
-  }
+const allowedRoles = ['administrador', 'professor'];
+
+if (!allowedRoles.includes(user?.userType || '')) {
+  return (
+    <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+      <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+      <h3 className="text-lg font-semibold text-red-800 mb-2">Acesso Negado</h3>
+      <p className="text-red-700">Você não tem permissão para acessar o painel administrativo.</p>
+    </div>
+  );
+}
+
 
   const handleRequestAction = (requestId: string, action: 'approved' | 'rejected') => {
     setRequests(prev => 
