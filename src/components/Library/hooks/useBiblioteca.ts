@@ -1,9 +1,63 @@
-import { useState, useMemo } from 'react';
-import { Artigo, Revista, SemestreData, FilterState, SortState } from '../types';
-import { getSemestre, ordenarSemestres } from '../utils/semestre';
-import { artigosMock, revistasMock } from '../data/mockData';
+import { useState, useMemo, useEffect } from 'react';
+import type {
+  Artigo,
+  Revista,
+  FilterState,
+  SemestreData,
+  Estatisticas
+} from '../../Library/types/index'; 
+
+const STORAGE_KEYS = {
+  ARTIGOS: 'biblioteca_artigos',
+  REVISTAS: 'biblioteca_revistas',
+};
+
+function safeLoad<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function save<T>(key: string, value: T) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // noop
+  }
+}
+
+/** tenta ler publicacao ou date de forma segura */
+function getPublicationDate(item: any): string | undefined {
+  return item?.publicacao ?? item?.date ?? undefined;
+}
+
+function getSemestreLabel(dateString?: string): string {
+  if (!dateString) return 'Semestre Desconhecido';
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) {
+    const yearMatch = String(dateString).match(/\b(20\d{2})\b/);
+    if (yearMatch) return `Semestre ${yearMatch[1]}`;
+    return 'Semestre Desconhecido';
+  }
+  const year = d.getFullYear();
+  const month = d.getMonth();
+  const semestreNum = month < 6 ? '1º' : '2º';
+  return `${semestreNum} Semestre ${year}`;
+}
 
 export function useBiblioteca() {
+  const [artigos, setArtigos] = useState<Artigo[]>(
+    () => safeLoad<Artigo[]>(STORAGE_KEYS.ARTIGOS, [])
+  );
+  const [revistas, setRevistas] = useState<Revista[]>(
+    () => safeLoad<Revista[]>(STORAGE_KEYS.REVISTAS, [])
+  );
+
+  // filtros (compatível com FilterState do FiltrosEBusca)
   const [filtros, setFiltros] = useState<FilterState>({
     busca: '',
     area: '',
@@ -12,118 +66,96 @@ export function useBiblioteca() {
     tipo: 'todos'
   });
 
-  const [ordenacao, setOrdenacao] = useState<SortState>({
-    field: 'data',
-    direction: 'desc'
-  });
+  // ordenação (você pode adaptar se quiser outro shape)
+  const [ordenacao, setOrdenacao] = useState({ field: 'data', direction: 'desc' } as any);
 
-  const dadosOrganizados = useMemo(() => {
-    let artigos = artigosMock;
-    let revistas = revistasMock;
+  useEffect(() => save(STORAGE_KEYS.ARTIGOS, artigos), [artigos]);
+  useEffect(() => save(STORAGE_KEYS.REVISTAS, revistas), [revistas]);
 
-    // Aplicar filtros
-    if (filtros.busca) {
-      const busca = filtros.busca.toLowerCase();
-      artigos = artigos.filter(item =>
-        item.titulo.toLowerCase().includes(busca) ||
-        item.descricao.toLowerCase().includes(busca) ||
-        item.autores.some(autor => autor.toLowerCase().includes(busca)) ||
-        item.keywords.some(keyword => keyword.toLowerCase().includes(busca))
-      );
-      revistas = revistas.filter(item =>
-        item.titulo.toLowerCase().includes(busca) ||
-        item.descricao.toLowerCase().includes(busca) ||
-        item.autores.some(autor => autor.toLowerCase().includes(busca)) ||
-        item.keywords.some(keyword => keyword.toLowerCase().includes(busca))
-      );
+  function adicionarArtigo(artigo: Artigo) {
+    setArtigos(prev => { const next = [...prev, artigo]; save(STORAGE_KEYS.ARTIGOS, next); return next; });
+  }
+
+  function adicionarRevista(revista: Revista) {
+    setRevistas(prev => { const next = [...prev, revista]; save(STORAGE_KEYS.REVISTAS, next); return next; });
+  }
+
+  const dados: SemestreData[] = useMemo(() => {
+    const map = new Map<string, SemestreData>();
+
+    const pushArticle = (a: Artigo) => {
+      const pub = getPublicationDate(a) ?? '';
+      const key = getSemestreLabel(pub);
+      if (!map.has(key)) map.set(key, { semestre: key, artigos: [], revistas: [] });
+      map.get(key)!.artigos.push(a);
+    };
+
+    const pushRevista = (r: Revista) => {
+      const pub = getPublicationDate(r) ?? '';
+      const key = getSemestreLabel(pub);
+      if (!map.has(key)) map.set(key, { semestre: key, artigos: [], revistas: [] });
+      map.get(key)!.revistas.push(r);
+    };
+
+    const q = filtros.busca?.trim()?.toLowerCase() || '';
+
+    const matchesText = (txt?: string) => !q || (txt || '').toLowerCase().includes(q);
+
+    // se filtros.tipo === 'artigos' -> só artigos; 'revistas' -> só revistas; 'todos' -> ambos
+    if (filtros.tipo === 'revistas' || filtros.tipo === 'todos') {
+      // processa revistas (aplica filtros)
+      revistas.forEach(r => {
+        if (filtros.semestre && getSemestreLabel(getPublicationDate(r)) !== filtros.semestre) return;
+        if (filtros.area && r.area && r.area.toLowerCase() !== filtros.area.toLowerCase()) return;
+        if (filtros.autor && !(r.autores || []).some(a => a.toLowerCase().includes(filtros.autor!.toLowerCase()))) return;
+        if (q) {
+          if (!(matchesText(r.titulo) || matchesText(r.descricao) || matchesText(r.area) || (r.autores || []).some(a => a.toLowerCase().includes(q)))) return;
+        }
+        pushRevista(r);
+      });
     }
 
-    if (filtros.area) {
-      artigos = artigos.filter(item => item.area === filtros.area);
-      revistas = revistas.filter(item => item.area === filtros.area);
+    if (filtros.tipo === 'artigos' || filtros.tipo === 'todos') {
+      artigos.forEach(a => {
+        if (filtros.semestre && getSemestreLabel(getPublicationDate(a)) !== filtros.semestre) return;
+        if (filtros.area && a.area && a.area.toLowerCase() !== filtros.area.toLowerCase()) return;
+        if (filtros.autor && !(a.autores || []).some(ar => ar.toLowerCase().includes(filtros.autor!.toLowerCase()))) return;
+        if (q) {
+          if (!(matchesText(a.titulo) || matchesText(a.descricao) || matchesText(a.area) || (a.autores || []).some(ar => ar.toLowerCase().includes(q)))) return;
+        }
+        pushArticle(a);
+      });
     }
 
-    if (filtros.autor) {
-      artigos = artigos.filter(item => 
-        item.autores.some(autor => autor === filtros.autor)
-      );
-      revistas = revistas.filter(item => 
-        item.autores.some(autor => autor === filtros.autor)
-      );
-    }
-
-    if (filtros.semestre) {
-      artigos = artigos.filter(item => getSemestre(item.publicacao) === filtros.semestre);
-      revistas = revistas.filter(item => getSemestre(item.publicacao) === filtros.semestre);
-    }
-
-    // Organizar por semestres
-    const semestres = new Map<string, SemestreData>();
-
-    artigos.forEach(artigo => {
-      const sem = getSemestre(artigo.publicacao);
-      if (!semestres.has(sem)) {
-        semestres.set(sem, { semestre: sem, artigos: [], revistas: [] });
-      }
-      semestres.get(sem)!.artigos.push(artigo);
+    const arr = Array.from(map.values());
+    arr.sort((a, b) => {
+      const yearA = Number(a.semestre.match(/\d{4}/)?.[0] || 0);
+      const yearB = Number(b.semestre.match(/\d{4}/)?.[0] || 0);
+      if (yearA !== yearB) return yearB - yearA;
+      return a.semestre.localeCompare(b.semestre);
     });
 
-    revistas.forEach(revista => {
-      const sem = getSemestre(revista.publicacao);
-      if (!semestres.has(sem)) {
-        semestres.set(sem, { semestre: sem, artigos: [], revistas: [] });
-      }
-      semestres.get(sem)!.revistas.push(revista);
-    });
+    return arr;
+  }, [artigos, revistas, filtros]);
 
-    // Ordenar dentro de cada semestre
-    semestres.forEach(semestreData => {
-      semestreData.artigos.sort((a, b) => ordenarItens(a, b, ordenacao));
-      semestreData.revistas.sort((a, b) => ordenarItens(a, b, ordenacao));
-    });
-
-    // Converter para array e ordenar semestres
-    const semestreArray = Array.from(semestres.values());
-    const semestresOrdenados = ordenarSemestres(semestreArray.map(s => s.semestre));
-    
-    return semestresOrdenados.map(sem => semestres.get(sem)!);
-  }, [filtros, ordenacao]);
-
-  const estatisticas = useMemo(() => {
-    const totalArtigos = artigosMock.length;
-    const totalRevistas = revistasMock.length;
-    const totalSemestres = new Set([...artigosMock, ...revistasMock].map(item => getSemestre(item.publicacao))).size;
-    
-    return { totalArtigos, totalRevistas, totalSemestres };
-  }, []);
+  const estatisticas: Estatisticas = useMemo(() => ({
+    totalArtigos: artigos.length,
+    totalRevistas: revistas.length,
+    totalSemestres: dados.length,
+  }), [artigos.length, revistas.length, dados.length]);
 
   return {
-    dados: dadosOrganizados,
+    dados,
     filtros,
     setFiltros,
     ordenacao,
     setOrdenacao,
-    estatisticas
+    estatisticas,
+    adicionarArtigo,
+    adicionarRevista,
+    artigos,
+    revistas,
   };
 }
 
-function ordenarItens(a: Artigo | Revista, b: Artigo | Revista, sort: SortState) {
-  let comparison = 0;
-  
-  switch (sort.field) {
-    case 'titulo':
-      comparison = a.titulo.localeCompare(b.titulo);
-      break;
-    case 'data':
-      comparison = new Date(a.publicacao).getTime() - new Date(b.publicacao).getTime();
-      break;
-    case 'area':
-      comparison = a.area.localeCompare(b.area);
-      break;
-    case 'autores':
-      comparison = a.autores[0]?.localeCompare(b.autores[0] || '') || 0;
-      break;
-  }
-  
-  return sort.direction === 'desc' ? -comparison : comparison;
-}
+export default useBiblioteca;

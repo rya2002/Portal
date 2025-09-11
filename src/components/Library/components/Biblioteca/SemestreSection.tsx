@@ -1,4 +1,3 @@
-import React from 'react';
 import { Calendar, FileText, BookOpen } from 'lucide-react';
 import { SemestreData } from '../../types';
 import ItemCard from './ItemCard';

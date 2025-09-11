@@ -1,17 +1,17 @@
-import React from 'react';
 import { FileText, BookOpen, Plus } from 'lucide-react';
-import { useAuth } from '/Users/maia2/OneDrive/Área de Trabalho/emergencia-main/forum/FORUM 3.0/Projeto/Portal-1/src/contexts/AuthContext'
+import { useAuth } from '../../../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom';
+import type { SubTab } from '../../types';
 
 interface SubNavigationProps {
-  activeSubTab: string;
-  onSubTabChange: (tab: string) => void;
+  activeSubTab: SubTab;
+  onSubTabChange: (tab: SubTab) => void;
 }
 
 export default function SubNavigation({ activeSubTab, onSubTabChange }: SubNavigationProps) {
-  const subTabs = [
-    { id: 'artigos', label: 'Artigos', icon: FileText },
-    { id: 'revistas', label: 'Revistas', icon: BookOpen }
+  const subTabs: { id: SubTab; label: string; icon: any }[] = [
+    { id: 'artigo', label: 'Artigos', icon: FileText },
+    { id: 'revista', label: 'Revistas', icon: BookOpen }
   ];
 
   const { user } = useAuth();

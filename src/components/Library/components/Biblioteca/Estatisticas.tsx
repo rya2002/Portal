@@ -1,4 +1,3 @@
-import React from 'react';
 import { FileText, BookOpen, Calendar, TrendingUp } from 'lucide-react';
 
 interface EstatisticasProps {

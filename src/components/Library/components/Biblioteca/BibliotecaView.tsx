@@ -1,17 +1,28 @@
-import React, { useState } from 'react';
-import { useBiblioteca } from '../../hooks/useBiblioteca';
-import SubNavigation from './SubNavigation';
+import { useState } from 'react';
+import useBiblioteca from '../../hooks/useBiblioteca'; 
+import SubNavigation from './SubNavigation'; 
 import FiltrosEBusca from './FiltrosEBusca';
 import Ordenacao from './Ordenacao';
 import Estatisticas from './Estatisticas';
 import SemestreSection from './SemestreSection';
+import type { FilterState, SortState, SubTab, SemestreData } from '../../types'; 
 
 export default function BibliotecaView() {
-  const [activeSubTab, setActiveSubTab] = useState('artigo');
-  const { dados, filtros, setFiltros, ordenacao, setOrdenacao, estatisticas } = useBiblioteca();
+  const [activeSubTab, setActiveSubTab] = useState<SubTab>('artigo');
 
-  const tipoAtivo = activeSubTab as 'artigo' | 'revista';
-  const totalItens = dados.reduce((total, semestre) => {
+  const {
+    dados,
+    filtros,
+    setFiltros,
+    ordenacao,
+    setOrdenacao,
+    estatisticas
+  } = useBiblioteca();
+
+  // tipo ativo agora é a mesma string usada nas abas (artigos | revistas)
+  const tipoAtivo: SubTab = activeSubTab;
+
+  const totalItens = dados.reduce((total: number, semestre: SemestreData) => {
     return total + (tipoAtivo === 'artigo' ? semestre.artigos.length : semestre.revistas.length);
   }, 0);
 
@@ -21,7 +32,7 @@ export default function BibliotecaView() {
         activeSubTab={activeSubTab}
         onSubTabChange={setActiveSubTab}
       />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Estatisticas
           totalArtigos={estatisticas.totalArtigos}
@@ -30,19 +41,19 @@ export default function BibliotecaView() {
         />
 
         <FiltrosEBusca
-          filtros={filtros}
+          filtros={filtros as FilterState}
           onFiltrosChange={setFiltros}
         />
 
         <Ordenacao
-          ordenacao={ordenacao}
+          ordenacao={ordenacao as SortState}
           onOrdenacaoChange={setOrdenacao}
           totalItens={totalItens}
         />
 
         {dados.length > 0 ? (
           <div>
-            {dados.map((semestreData) => (
+            {dados.map((semestreData: SemestreData) => (
               <SemestreSection
                 key={semestreData.semestre}
                 semestreData={semestreData}

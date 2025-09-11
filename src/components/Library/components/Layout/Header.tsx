@@ -1,4 +1,3 @@
-import React from 'react';
 import { BookOpen, Sun, Moon } from 'lucide-react';
 
 interface HeaderProps {

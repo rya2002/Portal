@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Download, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import { Artigo, Revista } from '../../types';
 import { formatarData } from '../../utils/semestre';

@@ -1,13 +1,10 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare, Users, BookOpen, Award, ArrowRight, Book } from 'lucide-react';
-import Header from "../components/Header";
 import Footer from './Footer';
 
 export default function HomePage() {
     return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <Header />
 
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">

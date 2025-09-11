@@ -43,3 +43,13 @@ export interface SortState {
   field: SortField;
   direction: SortDirection;
 }
+
+/** SubTabs disponíveis na Biblioteca */
+export type SubTab = 'artigo' | 'revista';
+
+/** Dados agregados de estatísticas da Biblioteca */
+export interface Estatisticas {
+  totalArtigos: number;
+  totalRevistas: number;
+  totalSemestres: number;
+}

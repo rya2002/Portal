@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import EventCarousel from './Event/teste/Eventos/components/EventCarousel';
 import AddEventModal from './Event/teste/Eventos/components/AddEventModal';

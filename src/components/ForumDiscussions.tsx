@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { MessageSquare, Heart, MessageCircle, Clock, User } from 'lucide-react';
+import { Heart, MessageCircle, Clock, User } from 'lucide-react';
 import { ForumPost } from '../types/auth';
 
 const mockPosts: ForumPost[] = [

@@ -1,6 +1,13 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { User, GraduationCap, Shield, AlertTriangle } from 'lucide-react';
+import { User as UserIcon, GraduationCap, Shield, AlertTriangle } from 'lucide-react';
+
+const roleValues = ['student', 'admin', 'visitor'] as const;
+type Role = typeof roleValues[number];
+
+function isRole(role: any): role is Role {
+  return roleValues.includes(role);
+}
 
 export function RoleBanner() {
   const { user, isAuthenticated } = useAuth();
@@ -23,7 +30,15 @@ export function RoleBanner() {
     );
   }
 
-  const roleConfig = {
+  const roleConfig: Record<Role, {
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    bgColor: string;
+    borderColor: string;
+    textColor: string;
+    iconColor: string;
+    title: string;
+    description: string;
+  }> = {
     student: {
       icon: GraduationCap,
       bgColor: 'bg-blue-50',
@@ -31,7 +46,7 @@ export function RoleBanner() {
       textColor: 'text-blue-800',
       iconColor: 'text-blue-600',
       title: '🎓 Aluno',
-      description: 'Você pode participar das discussões e solicitar publicações de revistas.'
+      description: 'Você pode participar das discussões e solicitar publicações de revistas.',
     },
     admin: {
       icon: Shield,
@@ -40,20 +55,21 @@ export function RoleBanner() {
       textColor: 'text-purple-800',
       iconColor: 'text-purple-600',
       title: '🛠️ Administrador',
-      description: 'Você tem acesso completo para gerenciar o fórum e suas funcionalidades.'
+      description: 'Você tem acesso completo para gerenciar o fórum e suas funcionalidades.',
     },
     visitor: {
-      icon: User,
+      icon: UserIcon,
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-400',
       textColor: 'text-gray-800',
       iconColor: 'text-gray-600',
       title: '👤 Visitante',
-      description: 'Você pode visualizar o conteúdo, mas não pode interagir.'
-    }
+      description: 'Você pode visualizar o conteúdo, mas não pode interagir.',
+    },
   };
 
-  const config = roleConfig[user.role] || roleConfig.visitor;
+  const userRole = isRole(user.role) ? user.role : 'visitor';
+  const config = roleConfig[userRole];
   const Icon = config.icon;
 
   return (

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Search, RotateCcw } from 'lucide-react';
 import { FilterState } from '../../types';
 import { extrairAreas, extrairAutores, ordenarSemestres } from '../../utils/semestre';
@@ -12,7 +11,7 @@ interface FiltrosEBuscaProps {
 export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBuscaProps) {
   const areas = extrairAreas(artigosMock, revistasMock);
   const autores = extrairAutores(artigosMock, revistasMock);
-  
+
   const semestres = ordenarSemestres(
     Array.from(new Set([...artigosMock, ...revistasMock].map(item => {
       const data = new Date(item.publicacao);
@@ -51,6 +50,7 @@ export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBusc
 
       {/* Filtros */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        {/* Área */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Área
@@ -67,6 +67,7 @@ export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBusc
           </select>
         </div>
 
+        {/* Semestre */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Semestre
@@ -83,6 +84,7 @@ export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBusc
           </select>
         </div>
 
+        {/* Autor */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Autor
@@ -99,13 +101,14 @@ export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBusc
           </select>
         </div>
 
+        {/* Tipo */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Tipo
           </label>
           <select
             value={filtros.tipo}
-            onChange={(e) => onFiltrosChange({ ...filtros, tipo: e.target.value as any })}
+            onChange={(e) => onFiltrosChange({ ...filtros, tipo: e.target.value as FilterState['tipo'] })}
             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           >
             <option value="todos">Todos</option>

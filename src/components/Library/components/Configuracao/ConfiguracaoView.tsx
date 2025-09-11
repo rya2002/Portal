@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Upload, Users, FileText, BookOpen, BarChart } from 'lucide-react';
 
 export default function ConfiguracaoView() {

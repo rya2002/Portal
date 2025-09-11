@@ -1,4 +1,3 @@
-import React from 'react';
 import { Book, Settings } from 'lucide-react';
 
 interface NavigationProps {
