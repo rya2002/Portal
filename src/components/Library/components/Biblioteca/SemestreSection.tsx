@@ -5,11 +5,11 @@ import ItemCard from './ItemCard';
 
 interface SemestreSectionProps {
   semestreData: SemestreData;
-  tipoAtivo: 'artigos' | 'revistas';
+  tipoAtivo: 'artigo' | 'revista';
 }
 
 export default function SemestreSection({ semestreData, tipoAtivo }: SemestreSectionProps) {
-  const itens = tipoAtivo === 'artigos' ? semestreData.artigos : semestreData.revistas;
+  const itens = tipoAtivo === 'artigo' ? semestreData.artigos : semestreData.revistas;
   const totalArtigos = semestreData.artigos.length;
   const totalRevistas = semestreData.revistas.length;
 

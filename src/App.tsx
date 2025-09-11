@@ -9,6 +9,7 @@ import LibraryPage from './components/LibraryPage';
 import EventPage  from './components/EventPage';
 import { ForumLayout } from './components/ForumLayout';
 import Header from "./components/Header";
+import PublicPage from './components/Library/components/Biblioteca/PublicPage';
 
 function AppContent() {
   const { user } = useAuth();
@@ -40,14 +41,19 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/biblioteca" element={<LibraryPage />} />
-            <Route path="/forum" element={<ForumLayout />} />
-            <Route path="/perfil" element={<ProfilePage />} />
-            <Route path="/eventos" element={<EventPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/perfil" element={<ProfilePage />} />
+          
+          {/* Biblioteca com subrotas */}
+          <Route path="/biblioteca" element={<LibraryPage />}>
+            <Route path="publicar" element={<PublicPage />} />
+          </Route>
+
+          <Route path="/forum" element={<ForumLayout />} />
+          <Route path="/eventos" element={<EventPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
         </div>
       </Router>
     </AuthProvider>

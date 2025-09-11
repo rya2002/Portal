@@ -7,12 +7,12 @@ import Estatisticas from './Estatisticas';
 import SemestreSection from './SemestreSection';
 
 export default function BibliotecaView() {
-  const [activeSubTab, setActiveSubTab] = useState('artigos');
+  const [activeSubTab, setActiveSubTab] = useState('artigo');
   const { dados, filtros, setFiltros, ordenacao, setOrdenacao, estatisticas } = useBiblioteca();
 
-  const tipoAtivo = activeSubTab as 'artigos' | 'revistas';
+  const tipoAtivo = activeSubTab as 'artigo' | 'revista';
   const totalItens = dados.reduce((total, semestre) => {
-    return total + (tipoAtivo === 'artigos' ? semestre.artigos.length : semestre.revistas.length);
+    return total + (tipoAtivo === 'artigo' ? semestre.artigos.length : semestre.revistas.length);
   }, 0);
 
   return (

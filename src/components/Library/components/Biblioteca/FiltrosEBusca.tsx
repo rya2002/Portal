@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Download, RotateCcw } from 'lucide-react';
+import { Search, RotateCcw } from 'lucide-react';
 import { FilterState } from '../../types';
 import { extrairAreas, extrairAutores, ordenarSemestres } from '../../utils/semestre';
 import { artigosMock, revistasMock } from '../../data/mockData';
@@ -31,10 +31,6 @@ export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBusc
       autor: '',
       tipo: 'todos'
     });
-  };
-
-  const handleExportar = () => {
-    console.log('Exportar resultados');
   };
 
   return (
@@ -127,14 +123,6 @@ export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBusc
         >
           <RotateCcw className="h-4 w-4" />
           <span>Limpar Filtros</span>
-        </button>
-
-        <button
-          onClick={handleExportar}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <Download className="h-4 w-4" />
-          <span>Exportar</span>
         </button>
       </div>
     </div>
