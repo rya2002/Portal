@@ -1,6 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import Header from '../components/Header';
-import ForumHeader from './ForumHeader';
+import { useMemo, useState } from 'react';
+
 import ForumNavigation from './ForumNavigation'; 
 import { ForumDiscussions } from './ForumDiscussions';
 import { AdminDashboard } from './AdminDashboard';
@@ -34,7 +33,6 @@ export function ForumLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <ForumNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {content}
