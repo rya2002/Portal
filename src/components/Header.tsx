@@ -1,9 +1,17 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 function Header() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Rotas onde o Header não deve aparecer
+  const hideHeaderRoutes = ["/login", "/perfil"];
+
+  if (hideHeaderRoutes.includes(location.pathname)) {
+    return null; // Não renderiza nada
+  }
 
   const handleLogout = () => {
     logout();
@@ -14,12 +22,12 @@ function Header() {
     <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo + Título (linka para Home) */}
+          {/* Logo + Título (agora também funciona como botão Início) */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="bg-blue-600 rounded-lg p-2">
+            <div className="bg-blue-600 rounded-lg p-2 group-hover:opacity-80 transition">
               <span className="text-white font-bold">N</span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+            <h1 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition">
               Portal Acadêmico
             </h1>
           </Link>
@@ -38,8 +46,8 @@ function Header() {
             <Link to="/eventos" className="text-gray-600 hover:text-gray-900">
               Eventos
             </Link>
+
             {!isAuthenticated ? (
-              // Visitante vê apenas o login
               <Link
                 to="/login"
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -47,7 +55,6 @@ function Header() {
                 Login
               </Link>
             ) : (
-              // Usuário logado vê avatar + nome com link para perfil
               <div className="flex items-center space-x-4">
                 <Link to="/perfil" className="flex items-center space-x-2 group">
                   <img
@@ -59,6 +66,12 @@ function Header() {
                     {user?.name}
                   </span>
                 </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-red-600 hover:text-red-800 font-medium"
+                >
+                  Sair
+                </button>
               </div>
             )}
           </nav>
