@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import type {
   Artigo,
   Revista,
@@ -7,28 +7,7 @@ import type {
   Estatisticas
 } from '../../Library/types/index'; 
 
-const STORAGE_KEYS = {
-  ARTIGOS: 'biblioteca_artigos',
-  REVISTAS: 'biblioteca_revistas',
-};
-
-function safeLoad<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
-}
-
-function save<T>(key: string, value: T) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // noop
-  }
-}
+import { artigosMock, revistasMock } from '../data/mockData';
 
 /** tenta ler publicacao ou date de forma segura */
 function getPublicationDate(item: any): string | undefined {
@@ -50,14 +29,9 @@ function getSemestreLabel(dateString?: string): string {
 }
 
 export function useBiblioteca() {
-  const [artigos, setArtigos] = useState<Artigo[]>(
-    () => safeLoad<Artigo[]>(STORAGE_KEYS.ARTIGOS, [])
-  );
-  const [revistas, setRevistas] = useState<Revista[]>(
-    () => safeLoad<Revista[]>(STORAGE_KEYS.REVISTAS, [])
-  );
+  const [artigos, setArtigos] = useState<Artigo[]>(artigosMock);
+  const [revistas, setRevistas] = useState<Revista[]>(revistasMock);
 
-  // filtros (compatível com FilterState do FiltrosEBusca)
   const [filtros, setFiltros] = useState<FilterState>({
     busca: '',
     area: '',
@@ -66,19 +40,7 @@ export function useBiblioteca() {
     tipo: 'todos'
   });
 
-  // ordenação (você pode adaptar se quiser outro shape)
   const [ordenacao, setOrdenacao] = useState({ field: 'data', direction: 'desc' } as any);
-
-  useEffect(() => save(STORAGE_KEYS.ARTIGOS, artigos), [artigos]);
-  useEffect(() => save(STORAGE_KEYS.REVISTAS, revistas), [revistas]);
-
-  function adicionarArtigo(artigo: Artigo) {
-    setArtigos(prev => { const next = [...prev, artigo]; save(STORAGE_KEYS.ARTIGOS, next); return next; });
-  }
-
-  function adicionarRevista(revista: Revista) {
-    setRevistas(prev => { const next = [...prev, revista]; save(STORAGE_KEYS.REVISTAS, next); return next; });
-  }
 
   const dados: SemestreData[] = useMemo(() => {
     const map = new Map<string, SemestreData>();
@@ -98,12 +60,9 @@ export function useBiblioteca() {
     };
 
     const q = filtros.busca?.trim()?.toLowerCase() || '';
-
     const matchesText = (txt?: string) => !q || (txt || '').toLowerCase().includes(q);
 
-    // se filtros.tipo === 'artigos' -> só artigos; 'revistas' -> só revistas; 'todos' -> ambos
     if (filtros.tipo === 'revistas' || filtros.tipo === 'todos') {
-      // processa revistas (aplica filtros)
       revistas.forEach(r => {
         if (filtros.semestre && getSemestreLabel(getPublicationDate(r)) !== filtros.semestre) return;
         if (filtros.area && r.area && r.area.toLowerCase() !== filtros.area.toLowerCase()) return;
@@ -151,8 +110,6 @@ export function useBiblioteca() {
     ordenacao,
     setOrdenacao,
     estatisticas,
-    adicionarArtigo,
-    adicionarRevista,
     artigos,
     revistas,
   };

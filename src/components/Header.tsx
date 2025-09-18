@@ -1,9 +1,8 @@
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 function Header() {
-  const { user, isAuthenticated, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const location = useLocation();
 
   // Rotas onde o Header não deve aparecer
@@ -12,11 +11,6 @@ function Header() {
   if (hideHeaderRoutes.includes(location.pathname)) {
     return null; // Não renderiza nada
   }
-
-  const handleLogout = () => {
-    logout();
-    navigate("/"); // Redireciona para Home após sair
-  };
 
   return (
     <header className="bg-white shadow-sm">
@@ -66,12 +60,6 @@ function Header() {
                     {user?.name}
                   </span>
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="text-sm text-red-600 hover:text-red-800 font-medium"
-                >
-                  Sair
-                </button>
               </div>
             )}
           </nav>
