@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { mockUsers } from "../../../../data/mockData"; 
 import { useBiblioteca } from "../../hooks/useBiblioteca"; 
-import { Artigo, Revista } from "../../types"; // ajustei o caminho para usar o types correto
+import { Artigo, Revista } from "../../types"; 
 
 export default function PublicPage() {
   const navigate = useNavigate();

@@ -50,7 +50,7 @@ export const revistasMock: Revista[] = [
     descricao: "Uma jornada por projetos que unem esporte, cultura e lazer com foco na inclusão de pessoas com deficiência.",
     edicao: "Vol. 1, Nº 1",
     capa: "/revistas/revista2.jpg",
-    publicacao: "2023-01-15",
+    publicacao: "2025-07-01",
     arquivopdf: "/revistas/revista2.pdf",
     autores: ["Arrany Nathália Amorim Bispo", "Diego Brito da Silva Carneiro", "Giovanna Souza de Brito","Jônatas de Jesus Costa dos Santos", "Lucas Vitório Gramosa da Silva", "Marcella Pinto Barreto"],
     area: "Pessoas com Deficiência",

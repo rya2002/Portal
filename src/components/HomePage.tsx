@@ -66,9 +66,9 @@ export default function HomePage() {
               <div className="bg-purple-100 rounded-full p-4 w-16 h-16 mx-auto mb-6 flex items-center justify-center">
                 <Award className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Reconhecimento</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Eventos</h3>
               <p className="text-gray-600">
-                Ganhe reconhecimento por suas contribuições e participação ativa na comunidade.
+                Fique por dentro das atividades do grupo.
               </p>
             </div>
           </div>

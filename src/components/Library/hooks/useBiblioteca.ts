@@ -5,7 +5,7 @@ import type {
   FilterState,
   SemestreData,
   Estatisticas
-} from '../../Library/types/index'; 
+} from '../../Library/types/index';
 
 import { artigosMock, revistasMock } from '../data/mockData';
 
@@ -103,6 +103,15 @@ export function useBiblioteca() {
     totalSemestres: dados.length,
   }), [artigos.length, revistas.length, dados.length]);
 
+  // 🔧 funções que faltavam
+  const adicionarArtigo = (novo: Artigo) => {
+    setArtigos(prev => [...prev, novo]);
+  };
+
+  const adicionarRevista = (nova: Revista) => {
+    setRevistas(prev => [...prev, nova]);
+  };
+
   return {
     dados,
     filtros,
@@ -112,6 +121,8 @@ export function useBiblioteca() {
     estatisticas,
     artigos,
     revistas,
+    adicionarArtigo,  
+    adicionarRevista   
   };
 }
 
