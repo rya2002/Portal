@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './components/HomePage';
+import EquipePage from './components/EquipePage';
 import Login from './components/Login';
 import ProfilePage from "./components/ProfilePage";
 import LibraryPage from './components/LibraryPage';
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/equipe" element={<EquipePage />} />
           <Route path="/perfil" element={<ProfilePage />} />
 
           {/* Biblioteca com subrotas */}
