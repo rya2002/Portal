@@ -37,7 +37,7 @@ export default function PublicPage() {
     (u) => u.userType !== "aluno-comum" && u.userType !== "administrador"
   );
 
-  // Keywords (Artigo)
+  // Helpers
   const adicionarKeywordArtigo = () => {
     const kw = novaKeywordArtigo.trim();
     if (kw && !keywordsArtigo.includes(kw)) {
@@ -48,7 +48,6 @@ export default function PublicPage() {
   const removerKeywordArtigo = (kw: string) =>
     setKeywordsArtigo(keywordsArtigo.filter((k) => k !== kw));
 
-  // Keywords (Revista)
   const adicionarKeywordRevista = () => {
     const kw = novaKeywordRevista.trim();
     if (kw && !keywordsRevista.includes(kw)) {
@@ -59,6 +58,17 @@ export default function PublicPage() {
   const removerKeywordRevista = (kw: string) =>
     setKeywordsRevista(keywordsRevista.filter((k) => k !== kw));
 
+  // 🔧 converte arquivo em Base64
+  function toBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  }
+
+  // Publicar Artigo
   const handleAddArtigo = () => {
     const novoArtigo: Artigo = {
       id: Date.now().toString(),
@@ -85,13 +95,19 @@ export default function PublicPage() {
     navigate("/biblioteca");
   };
 
-  const handleAddRevista = () => {
+  // Publicar Revista
+  const handleAddRevista = async () => {
+    let capaBase64 = "";
+    if (capaRevista) {
+      capaBase64 = await toBase64(capaRevista); // 🔥 converte capa para Base64
+    }
+
     const novaRevista: Revista = {
       id: Date.now().toString(),
       titulo: tituloRevista,
       descricao: descricaoRevista,
       edicao: edicaoRevista,
-      capa: capaRevista ? URL.createObjectURL(capaRevista) : "",
+      capa: capaBase64,
       publicacao: dataRevista,
       arquivopdf: arquivoRevista ? arquivoRevista.name : "",
       autores: autoresRevista,
@@ -150,7 +166,7 @@ export default function PublicPage() {
         </button>
       </div>
 
-      {/* Artigo */}
+      {/* Formulário de Artigo */}
       {activeTab === "artigos" && (
         <div className="space-y-4">
           <input
@@ -245,7 +261,7 @@ export default function PublicPage() {
         </div>
       )}
 
-      {/* Revista */}
+      {/* Formulário de Revista */}
       {activeTab === "revistas" && (
         <div className="space-y-4">
           <input

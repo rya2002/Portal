@@ -1,13 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type {
   Artigo,
   Revista,
   FilterState,
   SemestreData,
-  Estatisticas
-} from '../../Library/types/index';
-
-import { artigosMock, revistasMock } from '../data/mockData';
+  Estatisticas,
+  SortState
+} from '../types/index';
 
 /** tenta ler publicacao ou date de forma segura */
 function getPublicationDate(item: any): string | undefined {
@@ -29,8 +28,16 @@ function getSemestreLabel(dateString?: string): string {
 }
 
 export function useBiblioteca() {
-  const [artigos, setArtigos] = useState<Artigo[]>(artigosMock);
-  const [revistas, setRevistas] = useState<Revista[]>(revistasMock);
+  // 🔹 Inicializa a partir do localStorage
+  const [artigos, setArtigos] = useState<Artigo[]>(() => {
+    const stored = localStorage.getItem('artigos');
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  const [revistas, setRevistas] = useState<Revista[]>(() => {
+    const stored = localStorage.getItem('revistas');
+    return stored ? JSON.parse(stored) : [];
+  });
 
   const [filtros, setFiltros] = useState<FilterState>({
     busca: '',
@@ -40,8 +47,21 @@ export function useBiblioteca() {
     tipo: 'todos'
   });
 
-  const [ordenacao, setOrdenacao] = useState({ field: 'data', direction: 'desc' } as any);
+  const [ordenacao, setOrdenacao] = useState<SortState>({
+    field: 'data',
+    direction: 'desc'
+  });
 
+  // 🔹 Salva no localStorage sempre que mudar
+  useEffect(() => {
+    localStorage.setItem('artigos', JSON.stringify(artigos));
+  }, [artigos]);
+
+  useEffect(() => {
+    localStorage.setItem('revistas', JSON.stringify(revistas));
+  }, [revistas]);
+
+  // 🔎 Aplica filtros e organiza por semestre
   const dados: SemestreData[] = useMemo(() => {
     const map = new Map<string, SemestreData>();
 
@@ -65,8 +85,8 @@ export function useBiblioteca() {
     if (filtros.tipo === 'revistas' || filtros.tipo === 'todos') {
       revistas.forEach(r => {
         if (filtros.semestre && getSemestreLabel(getPublicationDate(r)) !== filtros.semestre) return;
-        if (filtros.area && r.area && r.area.toLowerCase() !== filtros.area.toLowerCase()) return;
-        if (filtros.autor && !(r.autores || []).some(a => a.toLowerCase().includes(filtros.autor!.toLowerCase()))) return;
+        if (filtros.area && r.area?.toLowerCase() !== filtros.area.toLowerCase()) return;
+        if (filtros.autor && !(r.autores || []).some(a => a.toLowerCase().includes(filtros.autor.toLowerCase()))) return;
         if (q) {
           if (!(matchesText(r.titulo) || matchesText(r.descricao) || matchesText(r.area) || (r.autores || []).some(a => a.toLowerCase().includes(q)))) return;
         }
@@ -77,8 +97,8 @@ export function useBiblioteca() {
     if (filtros.tipo === 'artigos' || filtros.tipo === 'todos') {
       artigos.forEach(a => {
         if (filtros.semestre && getSemestreLabel(getPublicationDate(a)) !== filtros.semestre) return;
-        if (filtros.area && a.area && a.area.toLowerCase() !== filtros.area.toLowerCase()) return;
-        if (filtros.autor && !(a.autores || []).some(ar => ar.toLowerCase().includes(filtros.autor!.toLowerCase()))) return;
+        if (filtros.area && a.area?.toLowerCase() !== filtros.area.toLowerCase()) return;
+        if (filtros.autor && !(a.autores || []).some(ar => ar.toLowerCase().includes(filtros.autor.toLowerCase()))) return;
         if (q) {
           if (!(matchesText(a.titulo) || matchesText(a.descricao) || matchesText(a.area) || (a.autores || []).some(ar => ar.toLowerCase().includes(q)))) return;
         }
@@ -97,13 +117,14 @@ export function useBiblioteca() {
     return arr;
   }, [artigos, revistas, filtros]);
 
+  // 📊 Estatísticas
   const estatisticas: Estatisticas = useMemo(() => ({
     totalArtigos: artigos.length,
     totalRevistas: revistas.length,
     totalSemestres: dados.length,
   }), [artigos.length, revistas.length, dados.length]);
 
-  // 🔧 funções que faltavam
+  // ➕ Funções para adicionar
   const adicionarArtigo = (novo: Artigo) => {
     setArtigos(prev => [...prev, novo]);
   };
@@ -121,9 +142,7 @@ export function useBiblioteca() {
     estatisticas,
     artigos,
     revistas,
-    adicionarArtigo,  
-    adicionarRevista   
+    adicionarArtigo,
+    adicionarRevista
   };
 }
-
-export default useBiblioteca;

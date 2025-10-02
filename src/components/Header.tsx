@@ -31,8 +31,8 @@ function Header() {
             <Link to="/biblioteca" className="text-gray-600 hover:text-gray-900">
               Biblioteca
             </Link>
-            <Link to="/assistente" className="text-gray-600 hover:text-gray-900">
-              Assistente
+            <Link to="/chat" className="text-gray-600 hover:text-gray-900">
+              Chat
             </Link>
             <Link to="/forum" className="text-gray-600 hover:text-gray-900">
               Fórum

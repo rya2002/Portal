@@ -4,6 +4,16 @@ export interface Usuario {
   foto?: string;
 }
 
+export interface Midia {
+  id: string;
+  tipo: 'foto' | 'video';
+  url: string;
+  title?: string;
+  caption?: string;
+  uploadedBy?: string;
+  date?: string;
+}
+
 export interface Event {
   id: string;
   titulo: string;
@@ -18,6 +28,7 @@ export interface Event {
   classificacaoIndicativa: string;
   categoria: 'em-andamento' | 'hoje' | 'ultimos-dias' | 'em-breve';
   imagem?: string;
+  midias?: Midia[]; 
 }
 
 export type UserProfile = 'aluno' | 'professor' | 'admin';
@@ -27,3 +38,4 @@ export interface User {
   nome: string;
   perfil: UserProfile;
 }
+

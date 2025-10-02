@@ -4,6 +4,7 @@ import EquipePage from './components/EquipePage';
 import Login from './components/Login';
 import ProfilePage from "./components/ProfilePage";
 import LibraryPage from './components/LibraryPage';
+import ChatPage from './components/ChatPage';
 import EventPage from './components/EventPage';
 import { ForumLayout } from './components/ForumLayout';
 import Header from "./components/Header";
@@ -26,7 +27,7 @@ function App() {
             <Route index element={<BibliotecaView />} />
             <Route path="publicar" element={<PublicPage />} />
           </Route>
-
+          <Route path="/chat" element={<ChatPage />} />
           <Route path="/forum" element={<ForumLayout />} />
           <Route path="/eventos" element={<EventPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

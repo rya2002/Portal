@@ -7,26 +7,46 @@ interface ItemCardProps {
 }
 
 export default function ItemCard({ item, tipo }: ItemCardProps) {
-  // helper para pegar a URL do PDF (prioriza arquivopdf, cai em pdfUrl)
+  // Helper para pegar a URL/Base64 do PDF
   const getPdfHref = (it: any) => {
     if (!it) return '';
-    // arquivopdf pode ser só um nome/filename — adapte se você salva o arquivo em /uploads/ ou usa URL completa
-    return it.arquivopdf && it.arquivopdf.length > 0 ? it.arquivopdf : (it.pdfUrl || '');
+    return it.arquivopdf && it.arquivopdf.length > 0
+      ? it.arquivopdf
+      : (it.pdfUrl || '');
+  };
+
+  const handleDownload = (it: any) => {
+    const pdfHref = getPdfHref(it);
+    if (!pdfHref) {
+      alert('Nenhum PDF disponível para este item.');
+      return;
+    }
+
+    const link = document.createElement('a');
+    link.href = pdfHref;
+    link.download = `${it.titulo}.pdf`;
+    document.body.appendChild(link); // necessário em alguns navegadores
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (tipo === 'revista') {
     const revista = item as Revista;
-    const pdfHref = getPdfHref(revista);
 
     return (
       <div className="flex items-start space-x-4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        {revista.capa && (
+        {revista.capa ? (
           <img
             src={revista.capa}
             alt={`Capa da revista ${revista.titulo}`}
             className="w-24 h-32 object-cover rounded-md shadow-md"
           />
+        ) : (
+          <div className="w-24 h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded-md">
+            <BookOpen className="h-8 w-8 text-gray-500" />
+          </div>
         )}
+
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {revista.titulo}
@@ -35,7 +55,6 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
             {revista.descricao}
           </p>
 
-          {/* Autores */}
           {revista.autores?.length > 0 && (
             <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
               <strong>Autores:</strong> {revista.autores.join(', ')}
@@ -47,27 +66,21 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
             Revista publicada em {revista.publicacao}
           </div>
 
-          {/* Botão de download */}
-          {pdfHref ? (
-            <a
-              href={pdfHref}
-              download
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Baixar PDF
-            </a>
-          ) : null}
+          {/* Botão de download funcional */}
+          <button
+            onClick={() => handleDownload(revista)}
+            className="mt-3 inline-flex items-center px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Baixar PDF
+          </button>
         </div>
       </div>
     );
   }
 
-  // caso artigo
+  // Caso seja artigo
   const artigo = item as Artigo;
-  const pdfHref = getPdfHref(artigo);
 
   return (
     <div className="flex items-start space-x-4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
@@ -82,7 +95,6 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
           {artigo.descricao}
         </p>
 
-        {/* Autores */}
         {artigo.autores?.length > 0 && (
           <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
             <strong>Autores:</strong> {artigo.autores.join(', ')}
@@ -93,19 +105,14 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
           Artigo publicado em {artigo.publicacao}
         </div>
 
-        {/* Botão de download */}
-        {pdfHref ? (
-          <a
-            href={pdfHref}
-            download
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Baixar PDF
-          </a>
-        ) : null}
+        {/* Botão de download funcional */}
+        <button
+          onClick={() => handleDownload(artigo)}
+          className="mt-3 inline-flex items-center px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          <Download className="h-4 w-4 mr-2" />
+          Baixar PDF
+        </button>
       </div>
     </div>
   );

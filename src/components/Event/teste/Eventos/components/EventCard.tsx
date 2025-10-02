@@ -89,7 +89,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
               </span>
             </div>
             <div className="flex flex-wrap gap-1">
-              {event.palestrantes.map((palestrante, index) => (
+              {event.palestrantes.map((palestrante, _index) => (
                 <span
                   key={palestrante.id}
                   className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md"

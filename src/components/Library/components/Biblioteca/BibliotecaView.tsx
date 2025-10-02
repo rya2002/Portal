@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import useBiblioteca from '../../hooks/useBiblioteca'; 
+import { useBiblioteca } from '../../hooks/useBiblioteca'; 
 import SubNavigation from './SubNavigation'; 
 import FiltrosEBusca from './FiltrosEBusca';
 import Ordenacao from './Ordenacao';
@@ -19,7 +19,6 @@ export default function BibliotecaView() {
     estatisticas
   } = useBiblioteca();
 
-  // tipo ativo agora é a mesma string usada nas abas (artigos | revistas)
   const tipoAtivo: SubTab = activeSubTab;
 
   const totalItens = dados.reduce((total: number, semestre: SemestreData) => {
@@ -32,6 +31,17 @@ export default function BibliotecaView() {
         activeSubTab={activeSubTab}
         onSubTabChange={setActiveSubTab}
       />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 flex justify-end">
+        <a
+          href="https://www.scielo.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium shadow-sm hover:bg-green-700 transition-colors"
+        >
+          Acessar SciELO
+        </a>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Estatisticas
