@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import LogoNejusc from '../assets/LogoNejusc.png';
 
 function Header() {
   const { user, isAuthenticated } = useAuth();
@@ -17,14 +18,14 @@ function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           {/* Logo + Título (agora também funciona como botão Início) */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="bg-blue-600 rounded-lg p-2 group-hover:opacity-80 transition">
-              <span className="text-white font-bold">N</span>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition">
-              Portal Acadêmico
-            </h1>
+          <Link to="/" className="flex items-center group">
+            <img
+              src={LogoNejusc}
+              alt="Logo NEJUSC"
+              className="h-12 w-auto group-hover:opacity-80 transition"
+            />
           </Link>
+
 
           {/* Navegação */}
           <nav className="flex items-center space-x-6">
