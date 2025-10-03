@@ -118,38 +118,42 @@ export default function HomePage() {
 
         {/* Features Section */}
         <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center px-4">
-          <div className="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition">
-            <BookOpen className="w-10 h-10 text-blue-600 mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Biblioteca</h3>
-            <p className="text-gray-600">
-              Acesse materiais acadêmicos, artigos e revistas produzidas pelo NEJUSC.
-            </p>
-          </div>
+        {/* Biblioteca */}
+        <Link to="/biblioteca" className="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <BookOpen className="w-10 h-10 text-blue-600 mx-auto mb-4" />
+          <h3 className="font-semibold text-lg mb-2">Biblioteca</h3>
+          <p className="text-gray-600">
+            Acesse materiais acadêmicos, artigos e revistas produzidas pelo NEJUSC.
+          </p>
+        </Link>
 
-          <div className="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition">
-            <Bot className="w-10 h-10 text-blue-600 mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Assistente</h3>
-            <p className="text-gray-600">
-              Acesse nosso assistente virtual para saber mais as linhas de estudo.
-            </p>
-          </div>
+        {/* chat*/}
+        <Link to="/chat" className="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <Bot className="w-10 h-10 text-blue-600 mx-auto mb-4" />
+          <h3 className="font-semibold text-lg mb-2">Assistente</h3>
+          <p className="text-gray-600">
+            Acesse nosso assistente virtual para saber mais as linhas de estudo.
+          </p>
+        </Link>
 
-          <div className="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition">
-            <MessageSquare className="w-10 h-10 text-blue-600 mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Discussões</h3>
-            <p className="text-gray-600">
-              Participe de fóruns e debata temas relevantes com colegas e especialistas.
-            </p>
-          </div>
+        {/* Discussões */}
+        <Link to="/forum" className="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <MessageSquare className="w-10 h-10 text-blue-600 mx-auto mb-4" />
+          <h3 className="font-semibold text-lg mb-2">Discussões</h3>
+          <p className="text-gray-600">
+            Participe de fóruns e debata temas relevantes com colegas e especialistas.
+          </p>
+        </Link>
 
-          <div className="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition">
-            <MicVocal className="w-10 h-10 text-blue-600 mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Eventos</h3>
-            <p className="text-gray-600">
-              Fique por dentro das atividades do Núcleo.
-            </p>
-          </div>
-        </div>
+        {/* Eventos */}
+        <Link to="/eventos" className="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition block">
+          <MicVocal className="w-10 h-10 text-blue-600 mx-auto mb-4" />
+          <h3 className="font-semibold text-lg mb-2">Eventos</h3>
+          <p className="text-gray-600">
+            Fique por dentro das atividades do Núcleo.
+          </p>
+        </Link>
+      </div>
       </section>
 
       <Footer />
