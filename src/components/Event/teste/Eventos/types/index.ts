@@ -14,6 +14,12 @@ export interface Midia {
   date?: string;
 }
 
+export interface AddMediaPayload {
+  type: "foto" | "video";
+  url: string;
+  title?: string;
+}
+
 export interface Event {
   id: string;
   titulo: string;

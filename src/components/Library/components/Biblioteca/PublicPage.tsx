@@ -99,7 +99,7 @@ export default function PublicPage() {
   const handleAddRevista = async () => {
     let capaBase64 = "";
     if (capaRevista) {
-      capaBase64 = await toBase64(capaRevista); // 🔥 converte capa para Base64
+      capaBase64 = await toBase64(capaRevista); // converte capa para Base64
     }
 
     const novaRevista: Revista = {

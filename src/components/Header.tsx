@@ -22,7 +22,7 @@ function Header() {
             <img
               src={LogoNejusc}
               alt="Logo NEJUSC"
-              className="h-12 w-auto group-hover:opacity-80 transition"
+              className="h-14 w-auto group-hover:opacity-80 transition"
             />
           </Link>
 
@@ -40,6 +40,9 @@ function Header() {
             </Link>
             <Link to="/eventos" className="text-gray-600 hover:text-gray-900">
               Eventos
+            </Link>
+            <Link to="/equipe" className="text-gray-600 hover:text-gray-900">
+              Equipe
             </Link>
 
             {!isAuthenticated ? (

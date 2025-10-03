@@ -21,7 +21,7 @@ export default function SubNavigation({ activeSubTab, onSubTabChange }: SubNavig
     user && ['aluno-nejusc', 'professor', 'administrador'].includes(user.userType);
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+    <div className="bg-gray-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         
         {/* Tabs */}
@@ -34,8 +34,8 @@ export default function SubNavigation({ activeSubTab, onSubTabChange }: SubNavig
                 onClick={() => onSubTabChange(tab.id)}
                 className={`flex items-center space-x-2 py-3 px-2 border-b-2 font-medium text-sm transition-colors ${
                   activeSubTab === tab.id
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800'
-                    : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-100'
+                    ? 'border-blue-500 text-blue-600 bg-white'
+                    : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'
                 }`}
               >
                 <Icon className="h-4 w-4" />

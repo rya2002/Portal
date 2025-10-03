@@ -36,10 +36,10 @@ export default function Estatisticas({ totalArtigos, totalRevistas, totalSemestr
 
   const getCoreClasses = (cor: string) => {
     const cores = {
-      blue: 'bg-blue-100 dark:bg-blue-900/20 text-blue-600',
-      green: 'bg-green-100 dark:bg-green-900/20 text-green-600',
-      purple: 'bg-purple-100 dark:bg-purple-900/20 text-purple-600',
-      orange: 'bg-orange-100 dark:bg-orange-900/20 text-orange-600'
+      blue: 'bg-blue-100  text-blue-600',
+      green: 'bg-green-100 text-green-600',
+      purple: 'bg-purple-100 text-purple-600',
+      orange: 'bg-orange-100 text-orange-600'
     };
     return cores[cor as keyof typeof cores];
   };
@@ -53,14 +53,14 @@ export default function Estatisticas({ totalArtigos, totalRevistas, totalSemestr
         return (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-medium text-gray-600">
                   {card.titulo}
                 </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                <p className="text-2xl font-bold text-gray-900 mt-1">
                   {card.valor}
                 </p>
               </div>

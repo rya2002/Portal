@@ -7,68 +7,137 @@ type Membro = {
   funcao?: string;
 };
 
-const membros: Membro[] = [
+const membrosNEJUSC: Membro[] = [
   {
     nome: 'Dra. Maria de Fátima Cardoso',
     email: 'maria.cardoso@unijorge.edu.br',
-    foto: '/images/maria.jpg',
+    foto: '',
     funcao: 'Coordenadora',
   },
   {
-    nome: 'João Silva',
-    email: 'joao.silva@email.com',
-    foto: '/images/joao.jpg',
+    nome: 'Bruno Lopo de Castro',
+    email: 'brunolopo07@gmail.com',
+    foto: '',
   },
   {
-    nome: 'Ana Souza',
-    email: 'ana.souza@email.com',
-    foto: '/images/ana.jpg',
+    nome: 'Milene Souza Cruz',
+    email: 'milenesouzacruz85@gmail.com',
+    foto: '',
   },
-  // Adicione mais integrantes aqui
+  {
+    nome: 'Rayanna Araújo Mendes',
+    email: 'mendesrayanna0@gmail.com',
+    foto: '',
+  },
+  {
+    nome: 'Yasmin Pires de Jesus Silva',
+    email: 'vanuzapires.24@gmail.com',
+    foto: '',
+  },
+  {
+    nome: 'Adriele Santana Alves',
+    email: 'Sntadriele031@gmail.com',
+    foto: '',
+  },
+  {
+    nome: 'Natália Amaral Cavalcante',
+    email: 'cavalcantenataliaac@gmail.com',
+    foto: '',
+  },
+  {
+    nome: 'Manuela da Silva dos Santos',
+    email: 'manuelascrosa@gmail.com',
+    foto: '',
+  },
+  {
+    nome: 'Vitória Santos da Silva',
+    email: 'viihrios16@gmail.com',
+    foto: '',
+  },
+  {
+    nome: 'Pâmela das Virgens dos Santos',
+    email: 'pamelavirgens8@gmail.com',
+    foto: '',
+  },
 ];
 
+const programadores: Membro[] = [
+  {
+    nome: 'Ryan Maia',
+    email: 'maia26498@gmail.com',
+    foto: '',
+  },
+  {
+    nome: 'Pedro Rômulo Araújo Cunha',
+    email: 'pedroromulo@hotmail.com',
+    foto: '',
+  },
+  {
+    nome: 'Leonardo de Oliveira Conceição Barreto',
+    email: 'leocontato26@gmail.com',
+    foto: '',
+  },
+  {
+    nome: 'Natália Santos Dias Ribeiro',
+    email: 'nataliasdrf@gmail.com',
+    foto: '',
+  },
+  {
+    nome: 'João Magno da Silva Mendonça',
+    email: 'magnojoao40@gmail.com',
+    foto: '',
+  },
+  {
+    nome: 'Taciano da Hora',
+    email: 'taciano.dev@outlook.com',
+    foto: '',
+  },
+  
+];
+
+// Componente para renderizar qualquer membro
+function CardMembro({ membro }: { membro: Membro }) {
+  return (
+    <div className="bg-white rounded-2xl shadow-md p-6 text-center">
+      <img
+        src={membro.foto}
+        alt={membro.nome}
+        className="w-32 h-32 rounded-full mx-auto mb-4 object-cover shadow"
+      />
+      <h3 className="text-lg font-semibold text-gray-900">{membro.nome}</h3>
+      {membro.funcao && <p className="text-indigo-600 font-medium mb-2">{membro.funcao}</p>}
+      <p className="text-gray-600">{membro.email}</p>
+    </div>
+  );
+}
+
 export default function EquipePage() {
-  const coordenadora = membros.find((m) => m.funcao === 'Coordenadora');
-  const outros = membros.filter((m) => m.funcao !== 'Coordenadora');
+  const coordenadora = membrosNEJUSC.find((m) => m.funcao === 'Coordenadora');
+  const outrosNEJUSC = membrosNEJUSC.filter((m) => m.funcao !== 'Coordenadora');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h1 className="text-4xl font-bold text-gray-900 mb-12 text-center">
-          Nossa Equipe
-        </h1>
+        {/* Seção NEJUSC */}
+        <h1 className="text-4xl font-bold text-gray-900 mb-12 text-center">Equipe NEJUSC</h1>
 
-        {/* Coordenadora */}
         {coordenadora && (
           <div className="bg-white rounded-2xl shadow-md p-8 mb-16 text-center">
-            <img
-              src={coordenadora.foto}
-              alt={coordenadora.nome}
-              className="w-40 h-40 rounded-full mx-auto mb-6 object-cover shadow"
-            />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {coordenadora.nome}
-            </h2>
-            <p className="text-indigo-600 font-medium mb-2">{coordenadora.funcao}</p>
-            <p className="text-gray-700">{coordenadora.email}</p>
+            <CardMembro membro={coordenadora} />
           </div>
         )}
 
-        {/* Outros membros */}
+        <div className="grid md:grid-cols-3 gap-8 mb-20">
+          {outrosNEJUSC.map((membro) => (
+            <CardMembro key={membro.nome} membro={membro} />
+          ))}
+        </div>
+
+        {/* Seção Programação */}
+        <h1 className="text-4xl font-bold text-gray-900 mb-12 text-center">Equipe de Programação</h1>
         <div className="grid md:grid-cols-3 gap-8">
-          {outros.map((membro) => (
-            <div
-              key={membro.nome}
-              className="bg-white rounded-2xl shadow-md p-6 text-center"
-            >
-              <img
-                src={membro.foto}
-                alt={membro.nome}
-                className="w-32 h-32 rounded-full mx-auto mb-4 object-cover shadow"
-              />
-              <h3 className="text-lg font-semibold text-gray-900">{membro.nome}</h3>
-              <p className="text-gray-600">{membro.email}</p>
-            </div>
+          {programadores.map((dev) => (
+            <CardMembro key={dev.nome} membro={dev} />
           ))}
         </div>
       </main>

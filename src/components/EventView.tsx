@@ -3,7 +3,7 @@ import { Plus, Trash } from "lucide-react";
 import EventCarousel from "./Event/teste/Eventos/components/EventCarousel";
 import AddEventModal from "./Event/teste/Eventos/components/AddEventModal";
 import AddMediaModal from "./Event/teste/Eventos/components/AddMediaModal";
-import { Event, Midia } from "./Event/teste/Eventos/types";
+import { Event, Midia, AddMediaPayload } from "./Event/teste/Eventos/types";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocalStorage } from "../components/Event/teste/Eventos/hooks/useLocalStorage";
 
@@ -23,25 +23,6 @@ function EventView() {
     user?.userType || ""
   );
 
-  // Busca eventos
-  const handleSearch = (query: string) => {
-    if (!query.trim()) {
-      setFilteredEvents(events);
-      return;
-    }
-    const q = query.toLowerCase();
-    setFilteredEvents(
-      events.filter(
-        (e) =>
-          e.titulo.toLowerCase().includes(q) ||
-          e.descricao.toLowerCase().includes(q) ||
-          e.earea.toLowerCase().includes(q) ||
-          e.local.toLowerCase().includes(q) ||
-          e.palestrantes.some((p) => p.nome.toLowerCase().includes(q))
-      )
-    );
-  };
-
   // Adicionar evento
   const handleAddEvent = (eventData: Omit<Event, "id">) => {
     const newEvent: Event = { ...eventData, id: `event-${Date.now()}` };
@@ -50,12 +31,8 @@ function EventView() {
     setFilteredEvents(updated);
   };
 
-  // Adicionar mídia
-  const handleAddMedia = (payload: {
-    type: "foto" | "video";
-    url: string;
-    title?: string;
-  }) => {
+  // Adicionar mídia (agora tipado corretamente como AddMediaPayload)
+  const handleAddMedia = (payload: AddMediaPayload) => {
     const newMedia: Midia = {
       id: `media-${Date.now()}`,
       tipo: payload.type,
@@ -144,7 +121,9 @@ function EventView() {
                       </div>
                       <div className="text-xs text-gray-500">
                         {m.uploadedBy} •{" "}
-                        {m.date ? new Date(m.date).toLocaleDateString() : ""}
+                        {m.date
+                          ? new Date(m.date).toLocaleDateString()
+                          : "Data desconhecida"}
                       </div>
                     </div>
 

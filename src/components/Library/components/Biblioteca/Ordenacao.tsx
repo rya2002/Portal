@@ -27,10 +27,10 @@ export default function Ordenacao({ ordenacao, onOrdenacaoChange, totalItens }: 
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <span className="text-sm font-medium text-gray-700">
             Ordenar por:
           </span>
           <div className="flex items-center space-x-2">
@@ -40,8 +40,8 @@ export default function Ordenacao({ ordenacao, onOrdenacaoChange, totalItens }: 
                 onClick={() => handleFieldChange(field)}
                 className={`flex items-center space-x-1 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                   ordenacao.field === field
-                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-600 hover:text-gray-800 hover:border-gray-300 hover:bg-gray-100'
                 }`}
               >
                 <span>{label}</span>
@@ -59,7 +59,7 @@ export default function Ordenacao({ ordenacao, onOrdenacaoChange, totalItens }: 
           </div>
         </div>
         
-        <div className="text-sm text-gray-600 dark:text-gray-400">
+        <div className="text-sm text-gray-600">
           {totalItens} resultado{totalItens !== 1 ? 's' : ''} encontrado{totalItens !== 1 ? 's' : ''}
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React from "react";
 import { PlusCircle, MessageSquare, Settings } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+
 
 type Props = {
   activeTab: 'discussions' | 'manage' | 'request-publication';
@@ -10,7 +10,6 @@ type Props = {
 
 const ForumNavigation: React.FC<Props> = ({ activeTab, onTabChange }) => {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   const isAdmin = ['administrador', 'professor'].includes(user?.userType || '');
   const isAuthenticated    = user?.userType && user?.userType !== 'visitante';
