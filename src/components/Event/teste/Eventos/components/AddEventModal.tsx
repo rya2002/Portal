@@ -196,15 +196,13 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAddEve
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="">Selecione uma área</option>
-                <option value="Tecnologia">Tecnologia</option>
-                <option value="Direito">Direito</option>
-                <option value="Administração">Administração</option>
-                <option value="Psicologia">Psicologia</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Engenharia">Engenharia</option>
-                <option value="Medicina">Medicina</option>
-                <option value="Educação">Educação</option>
+                <option value="">Selecione uma linha de estudo</option>
+                <option value="Tecnologia">Ambulantes no Carnaval</option>
+                <option value="Direito">Direitos e Vulnerabilidades</option>
+                <option value="Administração">Racismo Ambiental</option>
+                <option value="Psicologia">Maternindade Solo</option>
+                <option value="Marketing">Pessoas com Deficiência</option>
+                <option value="Engenharia">Cidadania</option>
               </select>
             </div>
           </div>
@@ -221,66 +219,41 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAddEve
                 className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700"
               >
                 <Plus className="h-4 w-4 mr-1" />
-                Adicionar
+                Adicionar palestrante
               </button>
             </div>
-            
-            <div className="space-y-2">
+
+            <div className="space-y-3">
               {palestrantes.map((palestrante, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={palestrante.nome}
-                    onChange={(e) => handlePalestranteChange(index, e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder={`Nome do palestrante ${index + 1}`}
-                  />
-                  {palestrantes.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removePalestrante(index)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </button>
-                  )}
+                <div
+                  key={index}
+                  className="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-2 md:space-y-0 border border-gray-200 rounded-lg p-3 bg-gray-50"
+                >
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={palestrante.nome}
+                      onChange={(e) => handlePalestranteChange(index, e.target.value)}
+                      placeholder={`Nome do palestrante ${index + 1}`}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="flex-shrink-0">
+                    {palestrantes.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removePalestrante(index)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                        title="Remover palestrante"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Preço */}
-          <div>
-            <div className="flex items-center space-x-4 mb-2">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="gratuito"
-                  checked={formData.gratuito}
-                  onChange={handleInputChange}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                />
-                <span className="ml-2 text-sm text-gray-700">Evento gratuito</span>
-              </label>
-            </div>
-            
-            {!formData.gratuito && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Valor (R$)
-                </label>
-                <input
-                  type="number"
-                  name="valor"
-                  value={formData.valor}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="0.00"
-                />
-              </div>
-            )}
           </div>
 
           {/* Classificação e Categoria */}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Calendar, Users, Clock, DollarSign } from 'lucide-react';
+import { MapPin, Calendar, Users, Clock } from 'lucide-react';
 import { Event } from '../types';
 
 interface EventCardProps {
@@ -70,13 +70,6 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
               <span>{event.duracao}</span>
             </div>
           )}
-
-          <div className="flex items-center text-sm text-gray-600">
-            <DollarSign className="h-4 w-4 mr-2 flex-shrink-0" />
-            <span>
-              {event.gratuito ? 'Gratuito' : `R$ ${event.valor?.toFixed(2)}`}
-            </span>
-          </div>
         </div>
 
         {/* Palestrantes */}
