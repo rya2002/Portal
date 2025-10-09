@@ -10,19 +10,19 @@ const api = axios.create({
 });
 
 // GET /api/revistas
-export const getAllRevistas = () => api.get('/revistas');
+export const getAllRevistas = () => api.get('/revista');
 
 // GET /api/revistas/{id} -> Ajustado para receber string
-export const getRevistaById = (id: string) => api.get(`/revistas/${id}`);
+export const getRevistaById = (id: string) => api.get(`/revista/${id}`);
 
 // POST /api/revistas
-export const createRevista = (data: any) => api.post('/revistas', data);
+export const createRevista = (data: any) => api.post('/revista', data);
 
 // PUT /api/revistas/{id} -> O ID pode vir no próprio 'data' ou ser passado separadamente
-export const updateRevista = (id: string, data: any) => api.put(`/revistas/${id}`, data);
+export const updateRevista = (id: string, data: any) => api.put(`/revista/${id}`, data);
 
 // DELETE /api/revistas/{id} -> Ajustado para receber string
-export const deleteRevista = (id: string) => api.delete(`/revistas/${id}`);
+export const deleteRevista = (id: string) => api.delete(`/revista/${id}`);
 
 // GET /api/artigos
 export const getAllArtigos = () => api.get('/artigos');
