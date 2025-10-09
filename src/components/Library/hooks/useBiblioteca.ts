@@ -1,4 +1,7 @@
+// src/hooks/useBiblioteca.ts
+
 import { useState, useEffect, useMemo } from 'react';
+import { getAllArtigos, getAllRevistas } from '../../../services/api'; //  Importe as funções da API
 import type {
   Artigo,
   Revista,
@@ -8,12 +11,14 @@ import type {
   SortState
 } from '../types/index';
 
-/** tenta ler publicacao ou date de forma segura */
+// Suas funções auxiliares (getPublicationDate, getSemestreLabel) permanecem as mesmas...
 function getPublicationDate(item: any): string | undefined {
+  // ...código da função...
   return item?.publicacao ?? item?.date ?? undefined;
 }
 
 function getSemestreLabel(dateString?: string): string {
+  // ...código da função...
   if (!dateString) return 'Semestre Desconhecido';
   const d = new Date(dateString);
   if (isNaN(d.getTime())) {
@@ -27,18 +32,17 @@ function getSemestreLabel(dateString?: string): string {
   return `${semestreNum} Semestre ${year}`;
 }
 
+
 export function useBiblioteca() {
-  // 🔹 Inicializa a partir do localStorage
-  const [artigos, setArtigos] = useState<Artigo[]>(() => {
-    const stored = localStorage.getItem('artigos');
-    return stored ? JSON.parse(stored) : [];
-  });
+  // 🔹 NOVOS ESTADOS para controlar o carregamento da API
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [revistas, setRevistas] = useState<Revista[]>(() => {
-    const stored = localStorage.getItem('revistas');
-    return stored ? JSON.parse(stored) : [];
-  });
+  // 🔹 Os estados agora começam vazios. A API vai preenchê-los.
+  const [artigos, setArtigos] = useState<Artigo[]>([]);
+  const [revistas, setRevistas] = useState<Revista[]>([]);
 
+  // Seus estados de filtro e ordenação continuam iguais
   const [filtros, setFiltros] = useState<FilterState>({
     busca: '',
     area: '',
@@ -46,23 +50,37 @@ export function useBiblioteca() {
     autor: '',
     tipo: 'todos'
   });
-
   const [ordenacao, setOrdenacao] = useState<SortState>({
     field: 'data',
     direction: 'desc'
   });
 
-  // 🔹 Salva no localStorage sempre que mudar
+  // 🔹 EFEITO PARA BUSCAR DADOS DA API QUANDO O HOOK É USADO PELA PRIMEIRA VEZ
   useEffect(() => {
-    localStorage.setItem('artigos', JSON.stringify(artigos));
-  }, [artigos]);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Busca artigos e revistas ao mesmo tempo para mais performance
+        const [artigosResponse, revistasResponse] = await Promise.all([
+          getAllArtigos(),
+          getAllRevistas()
+        ]);
+        setArtigos(artigosResponse.data.data);
+        setRevistas(revistasResponse.data.data); // .primeiro data para o axios, o segundo para o formato da API.
+        setError(null);
+      } catch (err) {
+        console.error("Erro ao buscar dados da API:", err);
+        setError("Não foi possível carregar os dados. Tente novamente mais tarde.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  useEffect(() => {
-    localStorage.setItem('revistas', JSON.stringify(revistas));
-  }, [revistas]);
+    fetchData();
+  }, []); // O array vazio [] garante que isso só roda uma vez.
 
-  // 🔎 Aplica filtros e organiza por semestre
   const dados: SemestreData[] = useMemo(() => {
+    // ...seu código de useMemo para 'dados' não muda NADA...
     const map = new Map<string, SemestreData>();
 
     const pushArticle = (a: Artigo) => {
@@ -117,14 +135,12 @@ export function useBiblioteca() {
     return arr;
   }, [artigos, revistas, filtros]);
 
-  // 📊 Estatísticas
   const estatisticas: Estatisticas = useMemo(() => ({
     totalArtigos: artigos.length,
     totalRevistas: revistas.length,
     totalSemestres: dados.length,
   }), [artigos.length, revistas.length, dados.length]);
 
-  // ➕ Funções para adicionar
   const adicionarArtigo = (novo: Artigo) => {
     setArtigos(prev => [...prev, novo]);
   };
@@ -133,6 +149,7 @@ export function useBiblioteca() {
     setRevistas(prev => [...prev, nova]);
   };
 
+  // 🔹 ADICIONAMOS loading E error AO RETORNO DO HOOK
   return {
     dados,
     filtros,
@@ -140,8 +157,8 @@ export function useBiblioteca() {
     ordenacao,
     setOrdenacao,
     estatisticas,
-    artigos,
-    revistas,
+    loading, // Para o seu componente saber que está carregando
+    error,   // Para o seu componente exibir uma mensagem de erro
     adicionarArtigo,
     adicionarRevista
   };
