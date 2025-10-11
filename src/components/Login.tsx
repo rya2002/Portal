@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LogIn, User, Lock, AlertCircle } from "lucide-react";
+import { LogIn, User, Lock, AlertCircle, UserPlus } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -22,35 +22,11 @@ export default function Login() {
 
     try {
       await login(email, password);
-      navigate(from, { replace: true }); // volta para a rota anterior
+      navigate(from, { replace: true });
     } catch (err) {
-      setError("Credenciais inválidas");
+      setError("Credenciais inválidas. Verifique seu e-mail e senha.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleDemoLogin = async (userType: "student" | "admin") => {
-    const demoUsers = {
-      student: {
-        email: "ryan.maia@estudante.unijorge.edu.br",
-        password: "demo123",
-      },
-      admin: {
-        email: "maria.fatima@nejusc.unijorge.edu.br",
-        password: "demo123",
-      },
-    };
-
-    const { email, password } = demoUsers[userType];
-    setEmail(email);
-    setPassword(password);
-
-    try {
-      await login(email, password);
-      navigate(from, { replace: true }); // também volta para a rota anterior
-    } catch (err) {
-      setError("Erro ao fazer login");
     }
   };
 
@@ -126,35 +102,25 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-600 text-center mb-4">
-            Para demonstração, use uma das contas abaixo:
-          </p>
-
-          <div className="space-y-3">
+        <div className="mt-6 text-center space-y-3">
+          <div className="pt-4 space-y-2">
             <button
-              onClick={() => handleDemoLogin("student")}
-              className="w-full bg-green-100 text-green-800 py-2 px-4 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
+              onClick={() => navigate("/")}
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
-              🎓 Entrar como Aluno (Ryan Maia)
+              Continuar como visitante
             </button>
 
-            <button
-              onClick={() => handleDemoLogin("admin")}
-              className="w-full bg-purple-100 text-purple-800 py-2 px-4 rounded-lg hover:bg-purple-200 transition-colors text-sm font-medium"
-            >
-              🛠️ Entrar como Professor (Profª Maria de Fátima)
-            </button>
+            <div>
+              <button
+                onClick={() => navigate("/cadastro")}
+                className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-800 mt-2"
+              >
+                <UserPlus className="w-4 h-4" />
+                Criar nova conta
+              </button>
+            </div>
           </div>
-        </div>
-
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => navigate("/")}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-          >
-            Continuar como visitante
-          </button>
         </div>
       </div>
     </div>
