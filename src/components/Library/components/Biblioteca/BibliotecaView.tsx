@@ -16,7 +16,9 @@ export default function BibliotecaView() {
     setFiltros,
     ordenacao,
     setOrdenacao,
-    estatisticas
+    estatisticas,
+    artigos,
+    revistas
   } = useBiblioteca();
 
   const tipoAtivo: SubTab = activeSubTab;
@@ -53,6 +55,8 @@ export default function BibliotecaView() {
         <FiltrosEBusca
           filtros={filtros as FilterState}
           onFiltrosChange={setFiltros}
+          artigos={artigos}
+          revistas={revistas}
         />
 
         <Ordenacao

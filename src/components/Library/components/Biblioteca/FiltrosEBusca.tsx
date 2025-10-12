@@ -1,19 +1,27 @@
 import { Search, RotateCcw } from 'lucide-react';
-import { FilterState } from '../../types';
+import { Artigo, FilterState, Revista } from '../../types';
 import { extrairAreas, extrairAutores, ordenarSemestres } from '../../utils/semestre';
-import { artigosMock, revistasMock } from '../../data/mockData';
 
 interface FiltrosEBuscaProps {
   filtros: FilterState;
   onFiltrosChange: (filtros: FilterState) => void;
+  artigos: Artigo[];   // <-- ADICIONE a prop de artigos
+  revistas: Revista[]; // <-- ADICIONE a prop de revistas
 }
 
-export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBuscaProps) {
-  const areas = extrairAreas(artigosMock, revistasMock);
-  const autores = extrairAutores(artigosMock, revistasMock);
+export default function FiltrosEBusca({ 
+  filtros, 
+  onFiltrosChange, 
+  artigos,      // <-- RECEBA a prop aqui
+  revistas      // <-- RECEBA a prop aqui
+}: FiltrosEBuscaProps) {
+  // Agora, use as props em vez do mock
+  const areas = extrairAreas(artigos, revistas);
+  const autores = extrairAutores(artigos, revistas);
 
   const semestres = ordenarSemestres(
-    Array.from(new Set([...artigosMock, ...revistasMock].map(item => {
+    Array.from(new Set([...artigos, ...revistas].map(item => {
+      // O resto desta função continua igual...
       const data = new Date(item.publicacao);
       const ano = data.getFullYear();
       const mes = data.getMonth() + 1;

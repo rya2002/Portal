@@ -1,7 +1,7 @@
 // src/hooks/useBiblioteca.ts
 
 import { useState, useEffect, useMemo } from 'react';
-import { getAllArtigos, getAllRevistas } from '../../../services/api'; //  Importe as funções da API
+import { getAllArtigos, getAllRevistas } from '../../../services/api'; // Importe as funções da API
 import type {
   Artigo,
   Revista,
@@ -11,14 +11,12 @@ import type {
   SortState
 } from '../types/index';
 
-// Suas funções auxiliares (getPublicationDate, getSemestreLabel) permanecem as mesmas...
+// Funções auxiliares (sem modificação)
 function getPublicationDate(item: any): string | undefined {
-  // ...código da função...
   return item?.publicacao ?? item?.date ?? undefined;
 }
 
 function getSemestreLabel(dateString?: string): string {
-  // ...código da função...
   if (!dateString) return 'Semestre Desconhecido';
   const d = new Date(dateString);
   if (isNaN(d.getTime())) {
@@ -34,15 +32,15 @@ function getSemestreLabel(dateString?: string): string {
 
 
 export function useBiblioteca() {
-  // 🔹 NOVOS ESTADOS para controlar o carregamento da API
+  // Estados para controlar o carregamento da API (sem modificação)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔹 Os estados agora começam vazios. A API vai preenchê-los.
+  // Estados dos dados, garantindo que iniciem como arrays vazios (sem modificação)
   const [artigos, setArtigos] = useState<Artigo[]>([]);
   const [revistas, setRevistas] = useState<Revista[]>([]);
 
-  // Seus estados de filtro e ordenação continuam iguais
+  // Estados de filtro e ordenação (sem modificação)
   const [filtros, setFiltros] = useState<FilterState>({
     busca: '',
     area: '',
@@ -55,18 +53,19 @@ export function useBiblioteca() {
     direction: 'desc'
   });
 
-  // 🔹 EFEITO PARA BUSCAR DADOS DA API QUANDO O HOOK É USADO PELA PRIMEIRA VEZ
+  // Efeito para buscar dados da API (com a modificação de segurança)
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Busca artigos e revistas ao mesmo tempo para mais performance
         const [artigosResponse, revistasResponse] = await Promise.all([
           getAllArtigos(),
           getAllRevistas()
         ]);
-        setArtigos(artigosResponse.data.data);
-        setRevistas(revistasResponse.data.data); // .primeiro data para o axios, o segundo para o formato da API.
+        const artigosDaApi = artigosResponse?.data?.data ?? [];
+        const revistasDaApi = revistasResponse?.data?.data ?? [];
+        setArtigos(artigosDaApi);
+        setRevistas(revistasDaApi);
         setError(null);
       } catch (err) {
         console.error("Erro ao buscar dados da API:", err);
@@ -77,10 +76,10 @@ export function useBiblioteca() {
     };
 
     fetchData();
-  }, []); // O array vazio [] garante que isso só roda uma vez.
+  }, []);
 
+  // Lógica de memoização para os dados (sem modificação)
   const dados: SemestreData[] = useMemo(() => {
-    // ...seu código de useMemo para 'dados' não muda NADA...
     const map = new Map<string, SemestreData>();
 
     const pushArticle = (a: Artigo) => {
@@ -101,46 +100,48 @@ export function useBiblioteca() {
     const matchesText = (txt?: string) => !q || (txt || '').toLowerCase().includes(q);
 
     if (filtros.tipo === 'revistas' || filtros.tipo === 'todos') {
-      revistas.forEach(r => {
-        if (filtros.semestre && getSemestreLabel(getPublicationDate(r)) !== filtros.semestre) return;
-        if (filtros.area && r.area?.toLowerCase() !== filtros.area.toLowerCase()) return;
-        if (filtros.autor && !(r.autores || []).some(a => a.toLowerCase().includes(filtros.autor.toLowerCase()))) return;
-        if (q) {
-          if (!(matchesText(r.titulo) || matchesText(r.descricao) || matchesText(r.area) || (r.autores || []).some(a => a.toLowerCase().includes(q)))) return;
-        }
-        pushRevista(r);
-      });
+        revistas.forEach(r => {
+            if (filtros.semestre && getSemestreLabel(getPublicationDate(r)) !== filtros.semestre) return;
+            if (filtros.area && r.area?.toLowerCase() !== filtros.area.toLowerCase()) return;
+            if (filtros.autor && !(r.autores || []).some(a => a.toLowerCase().includes(filtros.autor.toLowerCase()))) return;
+            if (q) {
+                if (!(matchesText(r.titulo) || matchesText(r.descricao) || matchesText(r.area) || (r.autores || []).some(a => a.toLowerCase().includes(q)))) return;
+            }
+            pushRevista(r);
+        });
     }
 
     if (filtros.tipo === 'artigos' || filtros.tipo === 'todos') {
-      artigos.forEach(a => {
-        if (filtros.semestre && getSemestreLabel(getPublicationDate(a)) !== filtros.semestre) return;
-        if (filtros.area && a.area?.toLowerCase() !== filtros.area.toLowerCase()) return;
-        if (filtros.autor && !(a.autores || []).some(ar => ar.toLowerCase().includes(filtros.autor.toLowerCase()))) return;
-        if (q) {
-          if (!(matchesText(a.titulo) || matchesText(a.descricao) || matchesText(a.area) || (a.autores || []).some(ar => ar.toLowerCase().includes(q)))) return;
-        }
-        pushArticle(a);
-      });
+        artigos.forEach(a => {
+            if (filtros.semestre && getSemestreLabel(getPublicationDate(a)) !== filtros.semestre) return;
+            if (filtros.area && a.area?.toLowerCase() !== filtros.area.toLowerCase()) return;
+            if (filtros.autor && !(a.autores || []).some(ar => ar.toLowerCase().includes(filtros.autor.toLowerCase()))) return;
+            if (q) {
+                if (!(matchesText(a.titulo) || matchesText(a.descricao) || matchesText(a.area) || (a.autores || []).some(ar => ar.toLowerCase().includes(q)))) return;
+            }
+            pushArticle(a);
+        });
     }
 
     const arr = Array.from(map.values());
     arr.sort((a, b) => {
-      const yearA = Number(a.semestre.match(/\d{4}/)?.[0] || 0);
-      const yearB = Number(b.semestre.match(/\d{4}/)?.[0] || 0);
-      if (yearA !== yearB) return yearB - yearA;
-      return a.semestre.localeCompare(b.semestre);
+        const yearA = Number(a.semestre.match(/\d{4}/)?.[0] || 0);
+        const yearB = Number(b.semestre.match(/\d{4}/)?.[0] || 0);
+        if (yearA !== yearB) return yearB - yearA;
+        return a.semestre.localeCompare(b.semestre);
     });
 
     return arr;
   }, [artigos, revistas, filtros]);
 
+  // Lógica de estatísticas (sem modificação)
   const estatisticas: Estatisticas = useMemo(() => ({
     totalArtigos: artigos.length,
     totalRevistas: revistas.length,
     totalSemestres: dados.length,
   }), [artigos.length, revistas.length, dados.length]);
 
+  // Funções de adição (sem modificação)
   const adicionarArtigo = (novo: Artigo) => {
     setArtigos(prev => [...prev, novo]);
   };
@@ -149,7 +150,7 @@ export function useBiblioteca() {
     setRevistas(prev => [...prev, nova]);
   };
 
-  // 🔹 ADICIONAMOS loading E error AO RETORNO DO HOOK
+  // Retorno do hook (sem modificação)
   return {
     dados,
     filtros,
@@ -157,9 +158,11 @@ export function useBiblioteca() {
     ordenacao,
     setOrdenacao,
     estatisticas,
-    loading, // Para o seu componente saber que está carregando
-    error,   // Para o seu componente exibir uma mensagem de erro
+    loading,
+    error,
     adicionarArtigo,
-    adicionarRevista
+    adicionarRevista,
+    artigos,
+    revistas
   };
 }
