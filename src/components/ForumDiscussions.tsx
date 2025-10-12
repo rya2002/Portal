@@ -6,34 +6,34 @@ import { ForumPost } from '../types/auth';
 const mockPosts: ForumPost[] = [
   {
     id: '1',
-    title: 'Como melhorar as técnicas de estudo para programação?',
-    content: 'Gostaria de compartilhar algumas dicas sobre métodos eficazes de estudo em programação. Quais técnicas vocês recomendam?',
-    author: 'João Silva',
+    title: 'Quais os principais desafios para a efetivação dos direitos humanos no Brasil?',
+    content: 'Gostaria de compartilhar minhas dúvidas sobre desafios para efetivar os direitos humanos no Brasil.',
+    author: 'Ryan Maia',
     authorRole: 'student',
-    createdAt: '2024-01-15T10:30:00Z',
+    createdAt: '2025-10-05T10:30:00Z',
     likes: 12,
     comments: [
       {
         id: '1',
-        content: 'Prática constante é fundamental! Recomendo fazer projetos pessoais.',
+        content: 'O Brasil é um dos países com maior desigualdade no mundo, o que dificulta o acesso igualitário a direitos básicos como educação, saúde, moradia e segurança.',
         author: 'Maria Santos',
         authorRole: 'admin',
         createdAt: '2024-01-15T11:00:00Z',
         likes: 5
       }
     ],
-    category: 'Educação'
+    category: 'Direitos e Vulnerabilidades'
   },
   {
     id: '2',
-    title: 'Oportunidades de estágio na área de tecnologia',
-    content: 'Compartilhando informações sobre vagas de estágio em empresas de tecnologia. Vamos discutir o que as empresas esperam dos candidatos.',
+    title: 'Quais são as condições dos vendedores ambulantes no carnaval de Salvador? ',
+    content: 'Estive pesquisando as revistas e fiquei na curiosidade sobre o seu conteúdo.',
     author: 'Ana Costa',
     authorRole: 'student',
     createdAt: '2024-01-14T15:45:00Z',
     likes: 18,
     comments: [],
-    category: 'Carreira'
+    category: 'Carnaval'
   }
 ];
 
