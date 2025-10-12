@@ -1,37 +1,71 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Trash } from "lucide-react";
 import EventCarousel from "./Event/teste/Eventos/components/EventCarousel";
 import AddEventModal from "./Event/teste/Eventos/components/AddEventModal";
 import AddMediaModal from "./Event/teste/Eventos/components/AddMediaModal";
 import { Event, Midia, AddMediaPayload } from "./Event/teste/Eventos/types";
 import { useAuth } from "../contexts/AuthContext";
-import { useLocalStorage } from "../components/Event/teste/Eventos/hooks/useLocalStorage";
 
-function EventView() {
+// Serviços para chamar a API
+const API_URL = "https://seu-backend.com/api/evento";
+
+const fetchEvents = async (): Promise<Event[]> => {
+  const res = await fetch(API_URL);
+  if (!res.ok) throw new Error("Erro ao buscar eventos");
+  return res.json();
+};
+
+const createEvent = async (eventData: Omit<Event, "id">): Promise<Event> => {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(eventData),
+  });
+  if (!res.ok) throw new Error("Erro ao criar evento");
+  return res.json();
+};
+
+const EventView = () => {
   const { user } = useAuth();
 
-  // LocalStorage para eventos e mídias
-  const [events, setEvents] = useLocalStorage<Event[]>("nejusc-events", []);
-  const [media, setMedia] = useLocalStorage<Midia[]>("nejusc-media", []);
-
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>(events);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [media, setMedia] = useState<Midia[]>([]);
   const [activeCategory, setActiveCategory] = useState("em-andamento");
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const [isAddMediaModalOpen, setIsAddMediaModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const canAddItems = ["professor", "administrador", "aluno-nejusc"].includes(
     user?.userType || ""
   );
 
+  // Carregar eventos da API
+  useEffect(() => {
+    setLoading(true);
+    fetchEvents()
+      .then((data) => {
+        setEvents(data);
+        setFilteredEvents(data);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
   // Adicionar evento
-  const handleAddEvent = (eventData: Omit<Event, "id">) => {
-    const newEvent: Event = { ...eventData, id: `event-${Date.now()}` };
-    const updated = [newEvent, ...events];
-    setEvents(updated);
-    setFilteredEvents(updated);
+  const handleAddEvent = async (eventData: Omit<Event, "id">) => {
+    try {
+      const newEvent = await createEvent(eventData);
+      const updated = [newEvent, ...events];
+      setEvents(updated);
+      setFilteredEvents(updated);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  // Adicionar mídia (agora tipado corretamente como AddMediaPayload)
+  // Adicionar mídia (continua local por enquanto)
   const handleAddMedia = (payload: AddMediaPayload) => {
     const newMedia: Midia = {
       id: `media-${Date.now()}`,
@@ -51,7 +85,6 @@ function EventView() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <main className="flex-1 pt-16">
-        {/* Botões de Adição */}
         {canAddItems && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-end gap-3">
             <button
@@ -72,19 +105,23 @@ function EventView() {
           </div>
         )}
 
+        {/* Loading / Erro */}
+        {loading && <p className="text-center py-12">Carregando eventos...</p>}
+        {error && <p className="text-center text-red-500 py-12">{error}</p>}
+
         {/* Carrossel */}
-        <EventCarousel
-          events={filteredEvents}
-          activeCategory={activeCategory}
-          onCategoryChange={setActiveCategory}
-        />
+        {!loading && !error && (
+          <EventCarousel
+            events={filteredEvents}
+            activeCategory={activeCategory}
+            onCategoryChange={setActiveCategory}
+          />
+        )}
 
         {/* Galeria de Fotos e Vídeos */}
         <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              Fotos e Vídeos
-            </h2>
+            <h2 className="text-2xl font-semibold text-gray-900">Fotos e Vídeos</h2>
           </div>
 
           {media.length === 0 ? (
@@ -94,10 +131,7 @@ function EventView() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {media.map((m) => (
-                <div
-                  key={m.id}
-                  className="bg-white rounded shadow p-2 overflow-hidden"
-                >
+                <div key={m.id} className="bg-white rounded shadow p-2 overflow-hidden">
                   <div className="w-full h-56 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
                     {m.tipo === "foto" ? (
                       <img
@@ -120,10 +154,7 @@ function EventView() {
                         {m.title || (m.tipo === "foto" ? "Foto" : "Vídeo")}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {m.uploadedBy} •{" "}
-                        {m.date
-                          ? new Date(m.date).toLocaleDateString()
-                          : "Data desconhecida"}
+                        {m.uploadedBy} • {m.date ? new Date(m.date).toLocaleDateString() : "Data desconhecida"}
                       </div>
                     </div>
 
@@ -156,6 +187,6 @@ function EventView() {
       />
     </div>
   );
-}
+};
 
 export default EventView;
