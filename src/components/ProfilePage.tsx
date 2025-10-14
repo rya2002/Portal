@@ -21,10 +21,33 @@ import {
 
 import { useAuth } from "../contexts/AuthContext";
 
-function ProfilePage() {
+function ProfilePage( ) {
   const { user, logout } = useAuth();
   const [activeSection, setActiveSection] = useState("perfil");
   const navigate = useNavigate();
+
+const handleLogout = async () => {
+    const confirmar = window.confirm("Tem certeza que deseja sair?");
+    if (!confirmar) return;
+
+    try {
+      const response = await fetch("https://localhost:7070/api/usuario/logout", {
+        method: "POST",
+        credentials: "include", 
+      });
+
+      if (response.ok) {
+        logout(); 
+        navigate("/"); 
+      } else {
+        const data = await response.json();
+        alert(`Erro ao sair: ${data.message || "Tente novamente."}`);
+      }
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      alert("Erro na conexão com o servidor.");
+    }
+  };  
 
   if (!user) {
     return (
@@ -35,11 +58,6 @@ function ProfilePage() {
       </div>
     );
   }
-
-  const handleLogout = () => {
-    logout();
-    navigate("/"); // 🔹 Redireciona para HomePage após logout
-  };
 
   const renderContent = () => {
     switch (activeSection) {
