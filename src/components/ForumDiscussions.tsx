@@ -1,176 +1,141 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Heart, MessageCircle, Clock, User } from 'lucide-react';
-import { ForumPost } from '../types/auth';
+import * as forumService from '../services/forumService';
 
-const mockPosts: ForumPost[] = [
-  {
-    id: '1',
-    title: 'Quais os principais desafios para a efetivação dos direitos humanos no Brasil?',
-    content: 'Gostaria de compartilhar minhas dúvidas sobre desafios para efetivar os direitos humanos no Brasil.',
-    author: 'Ryan Maia',
-    authorRole: 'student',
-    createdAt: '2025-10-05T10:30:00Z',
-    likes: 12,
-    comments: [
-      {
-        id: '1',
-        content: 'O Brasil é um dos países com maior desigualdade no mundo, o que dificulta o acesso igualitário a direitos básicos como educação, saúde, moradia e segurança.',
-        author: 'Maria Santos',
-        authorRole: 'admin',
-        createdAt: '2024-01-15T11:00:00Z',
-        likes: 5
-      }
-    ],
-    category: 'Direitos e Vulnerabilidades'
-  },
-  {
-    id: '2',
-    title: 'Quais são as condições dos vendedores ambulantes no carnaval de Salvador? ',
-    content: 'Estive pesquisando as revistas e fiquei na curiosidade sobre o seu conteúdo.',
-    author: 'Ana Costa',
-    authorRole: 'student',
-    createdAt: '2024-01-14T15:45:00Z',
-    likes: 18,
-    comments: [],
-    category: 'Carnaval'
+
+const resolveApi = (module: any, candidates: string[]) => {
+  for (const name of candidates) {
+    if (typeof module[name] === 'function') return module[name];
   }
-];
+  return undefined;
+};
+
+const parseResponse = (res: any) => res?.data?.data ?? res?.data ?? res;
+
+type ForumPost = {
+  id?: string;
+  titulo?: string;
+  descricao?: string;
+  autor?: string;
+  createdAt?: string;
+  [k: string]: any;
+};
 
 export function ForumDiscussions() {
-  const { user, isAuthenticated } = useAuth();
-  const [posts] = useState<ForumPost[]>(mockPosts);
+  const { user } = useAuth();
+  const [posts, setPosts] = useState<ForumPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [newTitle, setNewTitle] = useState('');
+  const [newDesc, setNewDesc] = useState('');
 
-  const canInteract = isAuthenticated && user?.userType !== 'visitante';
+  const getAllFn = resolveApi(forumService, ['getAllForums', 'getForums', 'fetchForums', 'listForums', 'getAllForumPosts', 'getAll']);
+  const createFn = resolveApi(forumService, ['createForum', 'createForumPost', 'createPost', 'addForum']);
+  const updateFn = resolveApi(forumService, ['updateForum', 'updateForumPost', 'editForum', 'patchForum', 'update']);
+  const deleteFn = resolveApi(forumService, ['deleteForum', 'deleteForumPost', 'removeForum', 'destroyForum', 'delete']);
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'admin': return 'text-purple-600';
-      case 'student': return 'text-blue-600';
-      default: return 'text-gray-600';
+  useEffect(() => {
+    let mounted = true;
+    const fetchPosts = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (!getAllFn) throw new Error('Função de listagem do fórum não encontrada em services.');
+        const res = await getAllFn();
+        const data = parseResponse(res) as ForumPost[];
+        if (mounted) setPosts(Array.isArray(data) ? data : []);
+      } catch (err: any) {
+        console.error(err);
+        if (mounted) setError(err.message ?? 'Erro ao carregar discussões.');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    fetchPosts();
+    return () => { mounted = false; };
+  }, []);
+
+  const handleCreate = async () => {
+    if (!user) return setError('Autenticação necessária.');
+    if (!createFn) return setError('Função de criação não encontrada em services.');
+    try {
+      const payload = { titulo: newTitle, descricao: newDesc };
+      const res = await createFn(payload);
+      const created = parseResponse(res);
+      if (created) setPosts(prev => [created, ...prev]);
+      else if (getAllFn) {
+        const all = parseResponse(await getAllFn());
+        setPosts(Array.isArray(all) ? all : []);
+      }
+      setNewTitle('');
+      setNewDesc('');
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError('Erro ao criar discussão.');
     }
   };
 
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'admin': return '🛠️ Admin';
-      case 'student': return '🎓 Aluno';
-      default: return '👤 Visitante';
+  const handleUpdate = async (id: string, updates: Partial<ForumPost>) => {
+    if (!updateFn) return setError('Função de atualização não encontrada em services.');
+    try {
+      try {
+        await updateFn(id, updates);
+      } catch {
+        await updateFn({ id, ...updates });
+      }
+      setPosts(prev => prev.map(p => (p.id === id ? { ...p, ...updates } : p)));
+    } catch (err) {
+      console.error(err);
+      setError('Erro ao atualizar discussão.');
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const handleDelete = async (id: string) => {
+    if (!deleteFn) return setError('Função de exclusão não encontrada em services.');
+    try {
+      try {
+        await deleteFn(id);
+      } catch {
+        await deleteFn({ id });
+      }
+      setPosts(prev => prev.filter(p => p.id !== id));
+    } catch (err) {
+      console.error(err);
+      setError('Erro ao deletar discussão.');
+    }
   };
+
+  if (loading) return <div>Carregando discussões...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Discussões do Fórum</h2>
-      </div>
+    <div>
+      {user && (
+        <div className="mb-4">
+          <h3>Criar nova discussão</h3>
+          <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Título" />
+          <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Descrição" />
+          <button onClick={handleCreate}>Publicar</button>
+        </div>
+      )}
 
-      <div className="space-y-4">
-        {posts.map((post) => (
-          <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="bg-blue-100 rounded-full p-2">
-                  <User className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 hover:text-blue-600 cursor-pointer">
-                    {post.title}
-                  </h3>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
-                    <span className={getRoleColor(post.authorRole)}>
-                      {getRoleLabel(post.authorRole)}
-                    </span>
-                    <span>{post.author}</span>
-                    <span>•</span>
-                    <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{formatDate(post.createdAt)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">
-                {post.category}
-              </span>
-            </div>
+      <ul>
+        {posts.map(post => (
+          <li key={post.id ?? Math.random()} className="border p-3 mb-2">
+            <h4>{post.titulo}</h4>
+            <p>{post.descricao}</p>
+            <small>{post.autor} • {post.createdAt}</small>
 
-            <p className="text-gray-700 mb-4">{post.content}</p>
-
-            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-              <div className="flex items-center space-x-6">
-                <button
-                  disabled={!canInteract}
-                  className={`flex items-center space-x-2 ${
-                    canInteract 
-                      ? 'text-gray-600 hover:text-red-600' 
-                      : 'text-gray-400 cursor-not-allowed'
-                  } transition-colors`}
-                >
-                  <Heart className="w-5 h-5" />
-                  <span>{post.likes}</span>
-                </button>
-
-                <button
-                  disabled={!canInteract}
-                  className={`flex items-center space-x-2 ${
-                    canInteract 
-                      ? 'text-gray-600 hover:text-blue-600' 
-                      : 'text-gray-400 cursor-not-allowed'
-                  } transition-colors`}
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  <span>{post.comments.length} comentários</span>
-                </button>
-              </div>
-
-              {canInteract && (
-                <button className="text-blue-600 hover:text-blue-800 font-medium">
-                  Responder
-                </button>
-              )}
-            </div>
-
-            {post.comments.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="space-y-3">
-                  {post.comments.map((comment) => (
-                    <div key={comment.id} className="bg-gray-50 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2 text-sm">
-                          <span className={`font-medium ${getRoleColor(comment.authorRole)}`}>
-                            {getRoleLabel(comment.authorRole)} {comment.author}
-                          </span>
-                          <span className="text-gray-500">
-                            {formatDate(comment.createdAt)}
-                          </span>
-                        </div>
-                        {canInteract && (
-                          <button className="flex items-center space-x-1 text-gray-500 hover:text-red-600">
-                            <Heart className="w-4 h-4" />
-                            <span>{comment.likes}</span>
-                          </button>
-                        )}
-                      </div>
-                      <p className="text-gray-700 text-sm">{comment.content}</p>
-                    </div>
-                  ))}
-                </div>
+            {user && (user.role === 'admin' || user.role === 'professor') && post.id && (
+              <div className="mt-2">
+                <button onClick={() => handleDelete(post.id!)} className="text-red-600 mr-2">Excluir</button>
+                <button onClick={() => handleUpdate(post.id!, { titulo: (post.titulo ?? '') + ' (edit)' })}>Editar</button>
               </div>
             )}
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }

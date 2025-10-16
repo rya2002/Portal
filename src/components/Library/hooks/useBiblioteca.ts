@@ -1,7 +1,8 @@
 // src/hooks/useBiblioteca.ts
 
 import { useState, useEffect, useMemo } from 'react';
-import { getAllArtigos, getAllRevistas } from '../../../services/api'; // Importe as funções da API
+import { getAllRevistas } from '../../../services/revistaService'; // Importe as funções da API
+import { getAllArtigos } from '../../../services/artigoService'; // Importe as funções da API
 import type {
   Artigo,
   Revista,

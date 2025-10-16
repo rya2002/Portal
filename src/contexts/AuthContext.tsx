@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { loginRequest, logoutRequest } from "../services/api";
+import { loginRequest, logoutRequest } from "../services/userService";
 
 // A interface User deve corresponder ao que sua API retorna no login
 interface User {
   id: string;
   nomeCompleto: string;
   email: string;
+  role: 'visitante' | 'aluno' | 'aluno-nejusc' | 'professor' | 'admin';
 }
 
 interface AuthContextType {
