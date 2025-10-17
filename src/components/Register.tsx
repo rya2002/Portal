@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios from "axios"; 
+import { registerRequest } from './services/userService'; 
 
+// Interface de dados do formulário
 interface FormData {
     nome: string;
     email: string;
@@ -8,10 +10,9 @@ interface FormData {
     confirmarSenha: string;
 }
 
-
 const Register: React.FC = () => {
-   
-    const API_URL = "https://localhost:5186/api/usuario";
+    
+
 
     const [formData, setFormData] = useState<FormData>({
         nome: "",
@@ -30,13 +31,14 @@ const Register: React.FC = () => {
     };
 
     
+    // Função de Hash (Mantida como estava)
     const hashPassword = async (password: string): Promise<string> => {
         const encoder = new TextEncoder();
         const data = encoder.encode(password);
-       
+        
         const hashBuffer = await crypto.subtle.digest("SHA-256", data);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
-      
+     
         return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
     };
 
@@ -59,35 +61,38 @@ const Register: React.FC = () => {
         }
 
         try {
-            
+            // 1. Criptografa a senha
             const hashedPassword = await hashPassword(formData.senha);
             
-            
-            const response = await axios.post(API_URL, {
+            // 2. Prepara os dados que o backend (CreateUserCommand) espera
+            const userDataToSend = {
                 nome: formData.nome,
                 email: formData.email,
-                senha: hashedPassword,
-            });
-
+                // Envia a senha já hasheada (no seu caso, SHA-256)
+                senha: hashedPassword, 
+            };
             
-            if (response.status === 201) {
-                setSuccess("Cadastro realizado com sucesso! Redirecionando para a tela de Login...");
-                
-                
-                setTimeout(() => {
-                    setSuccess("Redirecionamento simulado. Clique para tentar outro cadastro.");
-                    setFormData({ nome: "", email: "", senha: "", confirmarSenha: "" });
-                    setIsLoading(false);
-                }, 1500);
-            }
-        } catch (error: unknown) { // Use 'unknown' e faça a checagem segura
+            // 🎯 MUDANÇA PRINCIPAL: Chama a função do service
+            await registerRequest(userDataToSend);
+
+            // Se o service for bem-sucedido (não lançar erro), o cadastro ocorreu.
+            setSuccess("Cadastro realizado com sucesso! Redirecionando para a tela de Login...");
+            
+            // Simulação de redirecionamento
+            setTimeout(() => {
+                setSuccess("Redirecionamento simulado. Clique para tentar outro cadastro.");
+                setFormData({ nome: "", email: "", senha: "", confirmarSenha: "" });
+                setIsLoading(false);
+            }, 1500);
+            
+        } catch (error: unknown) {
             setIsLoading(false);
             
             let errorMessage = "Erro de conexão desconhecido ao registrar o usuário.";
 
-            
+            // Trata o erro usando o axios para extrair a mensagem do backend
             if (axios.isAxiosError(error) && error.response) {
-                
+                // A mensagem de erro do backend deve estar aqui (ex: email já existe)
                 errorMessage = error.response.data?.message || `Erro do servidor: ${error.response.statusText}`;
             }
 
@@ -124,67 +129,28 @@ const Register: React.FC = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-5">
-                    {/* Campo Nome */}
+                    {/* Campos do formulário (mantidos) */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Nome completo *</label>
-                        <input
-                            type="text"
-                            name="nome"
-                            value={formData.nome}
-                            onChange={handleChange}
-                            required
-                            disabled={isLoading}
-                            className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm"
-                            placeholder="Digite seu nome completo"
-                        />
+                        <input type="text" name="nome" value={formData.nome} onChange={handleChange} required disabled={isLoading} className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm" placeholder="Digite seu nome completo"/>
                     </div>
 
-                    {/* Campo E-mail */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">E-mail *</label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            disabled={isLoading}
-                            className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm"
-                            placeholder="exemplo@email.com"
-                        />
+                        <input type="email" name="email" value={formData.email} onChange={handleChange} required disabled={isLoading} className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm" placeholder="exemplo@email.com"/>
                     </div>
 
-                    {/* Campo Senha */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Senha *</label>
-                        <input
-                            type="password"
-                            name="senha"
-                            value={formData.senha}
-                            onChange={handleChange}
-                            required
-                            disabled={isLoading}
-                            className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm"
-                            placeholder="Digite uma senha segura"
-                        />
+                        <input type="password" name="senha" value={formData.senha} onChange={handleChange} required disabled={isLoading} className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm" placeholder="Digite uma senha segura"/>
                     </div>
 
-                    {/* Campo Confirmar Senha */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Confirmar senha *</label>
-                        <input
-                            type="password"
-                            name="confirmarSenha"
-                            value={formData.confirmarSenha}
-                            onChange={handleChange}
-                            required
-                            disabled={isLoading}
-                            className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm"
-                            placeholder="Confirme sua senha"
-                        />
+                        <input type="password" name="confirmarSenha" value={formData.confirmarSenha} onChange={handleChange} required disabled={isLoading} className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm" placeholder="Confirme sua senha"/>
                     </div>
 
-                    {/* Botão Cadastrar */}
+                    {/* Botão Cadastrar (mantido) */}
                     <button
                         type="submit"
                         disabled={isLoading}
@@ -208,12 +174,10 @@ const Register: React.FC = () => {
                     </button>
                 </form>
 
-                {/* Link para Login */}
+                {/* Link para Login (mantido) */}
                 <p className="text-center text-sm text-gray-600 pt-2">
                     Já tem uma conta?{" "}
                     <button
-                        // Se estiver usando react-router-dom, descomente e use:
-                        // onClick={() => navigate("/login")}
                         onClick={() => console.log("Simulação: Navegando para /login")}
                         className="text-blue-600 hover:underline font-semibold focus:outline-none"
                     >
