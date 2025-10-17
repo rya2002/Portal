@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+
+import { logoutRequest } from "../services/userService";
+
 import Sidebar from "../components/Profile/Sidebar";
 import ArticlesList from "../components/Profile/ArticlesList";
 import PostsList from "../components/Profile/PostsList";
@@ -21,33 +25,31 @@ import {
 
 import { useAuth } from "../contexts/AuthContext";
 
-function ProfilePage( ) {
+function ProfilePage() {
   const { user, logout } = useAuth();
   const [activeSection, setActiveSection] = useState("perfil");
   const navigate = useNavigate();
 
-const handleLogout = async () => {
+  const handleLogout = async () => {
     const confirmar = window.confirm("Tem certeza que deseja sair?");
     if (!confirmar) return;
 
     try {
-      const response = await fetch("https://localhost:7070/api/usuario/logout", {
-        method: "POST",
-        credentials: "include", 
-      });
+      // 💡 CHAMADA PADRONIZADA: Usa a função do service
+      await logoutRequest();
 
-      if (response.ok) {
-        logout(); 
-        navigate("/"); 
-      } else {
-        const data = await response.json();
-        alert(`Erro ao sair: ${data.message || "Tente novamente."}`);
-      }
+      // Se a chamada do service for bem-sucedida (sem lançar erro),
+      // o processo de logout é concluído no frontend.
+      logout();
+      navigate("/");
     } catch (error) {
+      // Qualquer erro (incluindo falha de rede ou resposta de erro do servidor)
+      // é capturado aqui.
       console.error("Erro ao fazer logout:", error);
-      alert("Erro na conexão com o servidor.");
+      // Mensagem genérica, já que o service lida com o erro HTTP
+      alert("Erro ao sair. Por favor, tente novamente.");
     }
-  };  
+  };
 
   if (!user) {
     return (
@@ -71,7 +73,9 @@ const handleLogout = async () => {
                 className="w-24 h-24 rounded-full border-4 border-blue-500"
               />
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {user.name}
+                </h2>
                 <p className="text-gray-600">{user.email}</p>
                 <p className="text-sm text-gray-500 capitalize">
                   Função: {getUserTypeLabel(user.userType)}
@@ -251,6 +255,3 @@ const handleLogout = async () => {
 }
 
 export default ProfilePage;
-
-
-
