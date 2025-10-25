@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import { Search, RotateCcw } from 'lucide-react';
 import { FilterState } from '../../types';
+import { getAllArtigos } from '../../../../services/artigoService';
+import { getAllRevistas } from '../../../../services/revistaService';
 import { extrairAreas, extrairAutores, ordenarSemestres } from '../../utils/semestre';
-import { artigosMock, revistasMock } from '../../data/mockData';
 
 interface FiltrosEBuscaProps {
   filtros: FilterState;
@@ -9,18 +11,42 @@ interface FiltrosEBuscaProps {
 }
 
 export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBuscaProps) {
-  const areas = extrairAreas(artigosMock, revistasMock);
-  const autores = extrairAutores(artigosMock, revistasMock);
+  const [areas, setAreas] = useState<string[]>([]);
+  const [autores, setAutores] = useState<string[]>([]);
+  const [semestres, setSemestres] = useState<string[]>([]);
 
-  const semestres = ordenarSemestres(
-    Array.from(new Set([...artigosMock, ...revistasMock].map(item => {
-      const data = new Date(item.publicacao);
-      const ano = data.getFullYear();
-      const mes = data.getMonth() + 1;
-      const semestre = (mes <= 6) ? 1 : 2;
-      return `${ano}.${semestre}`;
-    })))
-  );
+  useEffect(() => {
+    async function carregarFiltros() {
+      try {
+        const [artigos, revistas] = await Promise.all([
+          getAllArtigos(),
+          getAllRevistas(),
+        ]);
+
+        setAreas(extrairAreas(artigos, revistas));
+        setAutores(extrairAutores(artigos, revistas));
+
+        const semestresUnicos = ordenarSemestres(
+          Array.from(
+            new Set(
+              [...artigos, ...revistas].map((item) => {
+                const data = new Date(item.publicacao);
+                const ano = data.getFullYear();
+                const semestre = data.getMonth() + 1 <= 6 ? 1 : 2;
+                return `${ano}.${semestre}`;
+              })
+            )
+          )
+        );
+
+        setSemestres(semestresUnicos);
+      } catch (err) {
+        console.error('Erro ao carregar filtros:', err);
+      }
+    }
+
+    carregarFiltros();
+  }, []);
 
   const limparFiltros = () => {
     onFiltrosChange({
@@ -28,13 +54,13 @@ export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBusc
       area: '',
       semestre: '',
       autor: '',
-      tipo: 'todos'
+      tipo: 'todos',
     });
   };
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
-      {/* Barra de Busca */}
+      {/* Busca */}
       <div className="mb-4">
         <div className="relative">
           <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -52,64 +78,64 @@ export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBusc
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         {/* Área */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Área
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Área</label>
           <select
             value={filtros.area}
             onChange={(e) => onFiltrosChange({ ...filtros, area: e.target.value })}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Todas as áreas</option>
-            {areas.map(area => (
-              <option key={area} value={area}>{area}</option>
+            {areas.map((area) => (
+              <option key={area} value={area}>
+                {area}
+              </option>
             ))}
           </select>
         </div>
 
         {/* Semestre */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Semestre
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Semestre</label>
           <select
             value={filtros.semestre}
             onChange={(e) => onFiltrosChange({ ...filtros, semestre: e.target.value })}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Todos os semestres</option>
-            {semestres.map(semestre => (
-              <option key={semestre} value={semestre}>{semestre}</option>
+            {semestres.map((sem) => (
+              <option key={sem} value={sem}>
+                {sem}
+              </option>
             ))}
           </select>
         </div>
 
         {/* Autor */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Autor
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Autor</label>
           <select
             value={filtros.autor}
             onChange={(e) => onFiltrosChange({ ...filtros, autor: e.target.value })}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Todos os autores</option>
-            {autores.map(autor => (
-              <option key={autor} value={autor}>{autor}</option>
+            {autores.map((autor) => (
+              <option key={autor} value={autor}>
+                {autor}
+              </option>
             ))}
           </select>
         </div>
 
         {/* Tipo */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Tipo
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Tipo</label>
           <select
             value={filtros.tipo}
-            onChange={(e) => onFiltrosChange({ ...filtros, tipo: e.target.value as FilterState['tipo'] })}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onChange={(e) =>
+              onFiltrosChange({ ...filtros, tipo: e.target.value as FilterState['tipo'] })
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
             <option value="todos">Todos</option>
             <option value="artigos">Apenas Artigos</option>
@@ -118,7 +144,7 @@ export default function FiltrosEBusca({ filtros, onFiltrosChange }: FiltrosEBusc
         </div>
       </div>
 
-      {/* Ações */}
+      {/* Botão limpar */}
       <div className="flex justify-between items-center">
         <button
           onClick={limparFiltros}

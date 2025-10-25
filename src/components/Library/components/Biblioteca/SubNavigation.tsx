@@ -17,8 +17,7 @@ export default function SubNavigation({ activeSubTab, onSubTabChange }: SubNavig
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const canPublish =
-    user && ['aluno-nejusc', 'professor', 'administrador'].includes(user.userType);
+  const canPublish = user && ['alunoNEJUSC', 'professor', 'admin'].includes(user.role);
 
   return (
     <div className="bg-gray-50 border-b border-gray-200">

@@ -1,4 +1,5 @@
 import { Book, Settings } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NavigationProps {
   activeTab: string;
@@ -6,9 +7,17 @@ interface NavigationProps {
 }
 
 export default function Navigation({ activeTab, onTabChange }: NavigationProps) {
+  const { user } = useAuth() as any; // ajuste a tipagem conforme seu projeto
+
+  // Mostra aba de configuração apenas para professor/administrador.
+  const canSeeConfig = !!user && (
+    ['professor', 'administrador'].includes(String(user.userType || '').toLowerCase()) ||
+    ['professor', 'administrador'].includes(String(user.role || '').toLowerCase())
+  );
+
   const tabs = [
     { id: 'biblioteca', label: 'Biblioteca', icon: Book },
-    { id: 'configuracao', label: 'Configuração', icon: Settings }
+    ...(canSeeConfig ? [{ id: 'configuracao', label: 'Configuração', icon: Settings }] : [])
   ];
 
   return (

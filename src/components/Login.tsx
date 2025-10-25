@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LogIn, User, Lock, AlertCircle, UserPlus } from "lucide-react";
+import LogoNejusc from "../assets/LOGONEJUSC-16.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,7 +13,6 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // rota de onde o usuário veio, definida no ProtectedRoute
   const from = (location.state as any)?.from?.pathname || "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +23,7 @@ export default function Login() {
     try {
       await login(email, password);
       navigate(from, { replace: true });
-    } catch (err) {
+    } catch {
       setError("Credenciais inválidas. Verifique seu e-mail e senha.");
     } finally {
       setLoading(false);
@@ -33,16 +33,23 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="bg-blue-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-            <LogIn className="w-8 h-8 text-blue-600" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Acessar Fórum</h1>
+        {/* Cabeçalho com logo e texto */}
+        <div className="text-center mb-8 flex flex-col items-center">
+          <img
+            src={LogoNejusc}
+            alt="Logo Nejusc"
+            className="w-24 h-auto mb-4 drop-shadow-md"
+          />
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center justify-center gap-2">
+            <LogIn className="w-6 h-6 text-blue-600" />
+            Acessar Portal
+          </h1>
           <p className="text-gray-600 mt-2">
             Entre com suas credenciais para continuar
           </p>
         </div>
 
+        {/* Formulário */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
@@ -102,6 +109,7 @@ export default function Login() {
           </button>
         </form>
 
+        {/* Rodapé */}
         <div className="mt-6 text-center space-y-3">
           <div className="pt-4 space-y-2">
             <button

@@ -1,192 +1,237 @@
 import React, { useState } from "react";
-import axios from "axios"; 
-import { registerRequest } from './services/userService'; 
+import axios from "axios";
+import { registerRequest } from "../services/userService";
+import LogoNejusc from "../assets/LOGONEJUSC-16.png";
 
 // Interface de dados do formulário
 interface FormData {
-    nome: string;
-    email: string;
-    senha: string;
-    confirmarSenha: string;
+  nome: string;
+  email: string;
+  senha: string;
+  confirmarSenha: string;
 }
 
 const Register: React.FC = () => {
-    
+  const [formData, setFormData] = useState<FormData>({
+    nome: "",
+    email: "",
+    senha: "",
+    confirmarSenha: "",
+  });
 
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const [formData, setFormData] = useState<FormData>({
-        nome: "",
-        email: "",
-        senha: "",
-        confirmarSenha: "",
-    });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    const [error, setError] = useState<string>("");
-    const [success, setSuccess] = useState<string>("");
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+  const hashPassword = async (password: string): Promise<string> => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setIsLoading(true);
 
-    
-    // Função de Hash (Mantida como estava)
-    const hashPassword = async (password: string): Promise<string> => {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(password);
-        
-        const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-     
-        return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-    };
+    if (!formData.nome || !formData.email || !formData.senha || !formData.confirmarSenha) {
+      setError("Preencha todos os campos obrigatórios.");
+      setIsLoading(false);
+      return;
+    }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError("");
+    if (formData.senha !== formData.confirmarSenha) {
+      setError("As senhas não coincidem.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const hashedPassword = await hashPassword(formData.senha);
+      const userDataToSend = {
+        nome: formData.nome,
+        email: formData.email,
+        senha: hashedPassword,
+      };
+
+      await registerRequest(userDataToSend);
+      setSuccess("Cadastro realizado com sucesso! Redirecionando para a tela de Login...");
+
+      setTimeout(() => {
         setSuccess("");
-        setIsLoading(true);
+        setFormData({ nome: "", email: "", senha: "", confirmarSenha: "" });
+        setIsLoading(false);
+      }, 1500);
+    } catch (error: unknown) {
+      setIsLoading(false);
+      let errorMessage = "Erro de conexão desconhecido ao registrar o usuário.";
 
-        if (!formData.nome || !formData.email || !formData.senha || !formData.confirmarSenha) {
-            setError("Preencha todos os campos obrigatórios.");
-            setIsLoading(false);
-            return;
-        }
+      if (axios.isAxiosError(error) && error.response) {
+        errorMessage = error.response.data?.message || `Erro do servidor: ${error.response.statusText}`;
+      }
 
-        if (formData.senha !== formData.confirmarSenha) {
-            setError("As senhas não coincidem.");
-            setIsLoading(false);
-            return;
-        }
+      console.error("Erro ao registrar o usuário:", error);
+      setError(errorMessage);
+    }
+  };
 
-        try {
-            // 1. Criptografa a senha
-            const hashedPassword = await hashPassword(formData.senha);
-            
-            // 2. Prepara os dados que o backend (CreateUserCommand) espera
-            const userDataToSend = {
-                nome: formData.nome,
-                email: formData.email,
-                // Envia a senha já hasheada (no seu caso, SHA-256)
-                senha: hashedPassword, 
-            };
-            
-            // 🎯 MUDANÇA PRINCIPAL: Chama a função do service
-            await registerRequest(userDataToSend);
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 space-y-6 transform hover:scale-[1.01] transition duration-300">
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+          * { font-family: 'Inter', sans-serif; }
+        `}</style>
 
-            // Se o service for bem-sucedido (não lançar erro), o cadastro ocorreu.
-            setSuccess("Cadastro realizado com sucesso! Redirecionando para a tela de Login...");
-            
-            // Simulação de redirecionamento
-            setTimeout(() => {
-                setSuccess("Redirecionamento simulado. Clique para tentar outro cadastro.");
-                setFormData({ nome: "", email: "", senha: "", confirmarSenha: "" });
-                setIsLoading(false);
-            }, 1500);
-            
-        } catch (error: unknown) {
-            setIsLoading(false);
-            
-            let errorMessage = "Erro de conexão desconhecido ao registrar o usuário.";
-
-            // Trata o erro usando o axios para extrair a mensagem do backend
-            if (axios.isAxiosError(error) && error.response) {
-                // A mensagem de erro do backend deve estar aqui (ex: email já existe)
-                errorMessage = error.response.data?.message || `Erro do servidor: ${error.response.statusText}`;
-            }
-
-            console.error("Erro ao registrar o usuário:", error);
-            setError(errorMessage);
-        }
-    };
-
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-            <script src="https://cdn.tailwindcss.com"></script>
-            <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8 space-y-6 transform hover:scale-[1.01] transition duration-300">
-                <style jsx>{`
-                    /* Font Inter */
-                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-                    * { font-family: 'Inter', sans-serif; }
-                `}</style>
-                <h2 className="text-3xl font-extrabold text-center text-gray-900">
-                    🚀 Criar Conta
-                </h2>
-
-                {/* Mensagens de feedback */}
-                {error && (
-                    <div className="p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg text-sm transition-all duration-300">
-                        <p className="font-semibold">Erro:</p>
-                        <p>{error}</p>
-                    </div>
-                )}
-                {success && (
-                    <div className="p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg text-sm transition-all duration-300">
-                        <p className="font-semibold">Sucesso!</p>
-                        <p>{success}</p>
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    {/* Campos do formulário (mantidos) */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Nome completo *</label>
-                        <input type="text" name="nome" value={formData.nome} onChange={handleChange} required disabled={isLoading} className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm" placeholder="Digite seu nome completo"/>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">E-mail *</label>
-                        <input type="email" name="email" value={formData.email} onChange={handleChange} required disabled={isLoading} className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm" placeholder="exemplo@email.com"/>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Senha *</label>
-                        <input type="password" name="senha" value={formData.senha} onChange={handleChange} required disabled={isLoading} className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm" placeholder="Digite uma senha segura"/>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Confirmar senha *</label>
-                        <input type="password" name="confirmarSenha" value={formData.confirmarSenha} onChange={handleChange} required disabled={isLoading} className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm" placeholder="Confirme sua senha"/>
-                    </div>
-
-                    {/* Botão Cadastrar (mantido) */}
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className={`w-full font-bold py-3 rounded-xl transition transform duration-150 shadow-md 
-                            ${isLoading 
-                                ? "bg-blue-400 cursor-not-allowed" 
-                                : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-[1.01] active:scale-[0.99]"
-                            }`}
-                    >
-                        {isLoading ? (
-                            <span className="flex items-center justify-center">
-                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Registrando...
-                            </span>
-                        ) : (
-                            "Cadastrar"
-                        )}
-                    </button>
-                </form>
-
-                {/* Link para Login (mantido) */}
-                <p className="text-center text-sm text-gray-600 pt-2">
-                    Já tem uma conta?{" "}
-                    <button
-                        onClick={() => console.log("Simulação: Navegando para /login")}
-                        className="text-blue-600 hover:underline font-semibold focus:outline-none"
-                    >
-                        Fazer login
-                    </button>
-                </p>
-            </div>
+        {/* Logo e título */}
+        <div className="flex flex-col items-center text-center mb-4">
+          <img
+            src={LogoNejusc}
+            alt="Logo NEJUSC"
+            className="w-24 h-24 object-contain mb-3"
+          />
+          <h2 className="text-3xl font-extrabold text-gray-900">
+            Criar Conta
+          </h2>
+          <p className="text-gray-600 text-sm mt-1">
+            Crie sua conta para acessar o Portal NEJUSC
+          </p>
         </div>
-    );
+
+        {/* Mensagens de feedback */}
+        {error && (
+          <div className="p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg text-sm transition-all duration-300">
+            <p className="font-semibold">Erro:</p>
+            <p>{error}</p>
+          </div>
+        )}
+        {success && (
+          <div className="p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg text-sm transition-all duration-300">
+            <p className="font-semibold">Sucesso!</p>
+            <p>{success}</p>
+          </div>
+        )}
+
+        {/* Formulário */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Nome completo *</label>
+            <input
+              type="text"
+              name="nome"
+              value={formData.nome}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm"
+              placeholder="Digite seu nome completo"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">E-mail *</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm"
+              placeholder="exemplo@email.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Senha *</label>
+            <input
+              type="password"
+              name="senha"
+              value={formData.senha}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm"
+              placeholder="Digite uma senha segura"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Confirmar senha *</label>
+            <input
+              type="password"
+              name="confirmarSenha"
+              value={formData.confirmarSenha}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm"
+              placeholder="Confirme sua senha"
+            />
+          </div>
+
+          {/* Botão Cadastrar */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full font-bold py-3 rounded-xl transition transform duration-150 shadow-md 
+              ${
+                isLoading
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-[1.01] active:scale-[0.99]"
+              }`}
+          >
+            {isLoading ? (
+              <span className="flex items-center justify-center">
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Registrando...
+              </span>
+            ) : (
+              "Cadastrar"
+            )}
+          </button>
+        </form>
+
+        {/* Link para Login */}
+        <p className="text-center text-sm text-gray-600 pt-2">
+          Já tem uma conta?{" "}
+          <button
+            onClick={() => console.log("Simulação: Navegando para /login")}
+            className="text-blue-600 hover:underline font-semibold focus:outline-none"
+          >
+            Fazer login
+          </button>
+        </p>
+      </div>
+    </div>
+  );
 };
 
 export default Register;

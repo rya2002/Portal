@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import LogoNejusc from '../assets/LogoNejusc.png';
+import LogoNejusc from '../assets/LOGONEJUSC-15.png';
 
 function Header() {
   const { user, isAuthenticated } = useAuth();

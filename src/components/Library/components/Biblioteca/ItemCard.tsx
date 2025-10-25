@@ -1,5 +1,7 @@
 import { FileText, BookOpen, Download } from 'lucide-react';
 import { Artigo, Revista } from '../../types';
+import { useEffect, useState } from 'react';
+import { getAllRevistas } from '../../../../services/revistaService';
 
 interface ItemCardProps {
   item: Artigo | Revista;
@@ -7,25 +9,26 @@ interface ItemCardProps {
 }
 
 export default function ItemCard({ item, tipo }: ItemCardProps) {
-  // Helper para pegar a URL/Base64 do PDF
-  const getPdfHref = (it: any) => {
-    if (!it) return '';
-    return it.arquivopdf && it.arquivopdf.length > 0
-      ? it.arquivopdf
-      : (it.pdfUrl || '');
-  };
+  const [revistas, setRevistas] = useState<Revista[]>([]);
 
-  const handleDownload = (it: any) => {
-    const pdfHref = getPdfHref(it);
-    if (!pdfHref) {
+  useEffect(() => {
+    async function getRevistas() {
+      const response = await getAllRevistas();
+      setRevistas(response?.data as Revista[]);
+    }
+    getRevistas();
+  }, []);
+
+  const handleDownload = (it: Artigo | Revista) => {
+    if (!it.arquivopdf) {
       alert('Nenhum PDF disponível para este item.');
       return;
     }
 
     const link = document.createElement('a');
-    link.href = pdfHref;
+    link.href = it.arquivopdf;
     link.download = `${it.titulo}.pdf`;
-    document.body.appendChild(link); // necessário em alguns navegadores
+    document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
@@ -35,9 +38,9 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
 
     return (
       <div className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow">
-        {revista.capa ? (
+        {revista.capaUrl ? (
           <img
-            src={revista.capa}
+            src={revista.capaUrl}
             alt={`Capa da revista ${revista.titulo}`}
             className="w-24 h-32 object-cover rounded-md shadow-md"
           />
@@ -51,9 +54,7 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
           <h3 className="text-lg font-semibold text-gray-900">
             {revista.titulo}
           </h3>
-          <p className="text-sm text-gray-600">
-            {revista.descricao}
-          </p>
+          <p className="text-sm text-gray-600">{revista.descricao}</p>
 
           {revista.autores?.length > 0 && (
             <p className="text-sm text-gray-700 mt-2">
@@ -66,7 +67,6 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
             Revista publicada em {revista.publicacao}
           </div>
 
-          {/* Botão de download funcional */}
           <button
             onClick={() => handleDownload(revista)}
             className="mt-3 inline-flex items-center px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700"
@@ -79,7 +79,6 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
     );
   }
 
-  // Caso seja artigo
   const artigo = item as Artigo;
 
   return (
@@ -88,12 +87,8 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
         <FileText className="h-10 w-10 text-blue-500" />
       </div>
       <div className="flex-1">
-        <h3 className="text-lg font-semibold text-gray-900">
-          {artigo.titulo}
-        </h3>
-        <p className="text-sm text-gray-600">
-          {artigo.descricao}
-        </p>
+        <h3 className="text-lg font-semibold text-gray-900">{artigo.titulo}</h3>
+        <p className="text-sm text-gray-600">{artigo.descricao}</p>
 
         {artigo.autores?.length > 0 && (
           <p className="text-sm text-gray-700 mt-2">
@@ -105,7 +100,6 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
           Artigo publicado em {artigo.publicacao}
         </div>
 
-        {/* Botão de download funcional */}
         <button
           onClick={() => handleDownload(artigo)}
           className="mt-3 inline-flex items-center px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"

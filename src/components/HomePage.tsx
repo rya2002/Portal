@@ -27,9 +27,7 @@ export default function HomePage() {
           <span className="text-blue-600 block">Portal NEJUSC</span>
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-3xl text-center">
-          Conecte-se com a comunidade acadêmica, participe de discussões
-          enriquecedoras e compartilhe conhecimento em nossa plataforma
-          educacional.
+          "Mais que leis, precisamos mudar mentes e corações." - Pablo Stolze
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4">

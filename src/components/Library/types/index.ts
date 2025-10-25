@@ -14,7 +14,7 @@ export interface Revista {
   titulo: string;
   descricao: string;
   edicao: string;
-  capa: string;
+  capaUrl?: string;
   publicacao: string;
   arquivopdf: string;
   autores: string[];

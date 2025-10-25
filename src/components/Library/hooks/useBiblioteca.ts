@@ -7,6 +7,8 @@ import type {
   Estatisticas,
   SortState
 } from '../types/index';
+import { getAllArtigos } from '../../../services/artigoService';
+import { getAllRevistas } from '../../../services/revistaService';
 
 /** tenta ler publicacao ou date de forma segura */
 function getPublicationDate(item: any): string | undefined {
@@ -28,16 +30,10 @@ function getSemestreLabel(dateString?: string): string {
 }
 
 export function useBiblioteca() {
-  // 🔹 Inicializa a partir do localStorage
-  const [artigos, setArtigos] = useState<Artigo[]>(() => {
-    const stored = localStorage.getItem('artigos');
-    return stored ? JSON.parse(stored) : [];
-  });
-
-  const [revistas, setRevistas] = useState<Revista[]>(() => {
-    const stored = localStorage.getItem('revistas');
-    return stored ? JSON.parse(stored) : [];
-  });
+  // 🔹 Estados principais
+  const [artigos, setArtigos] = useState<Artigo[]>([]);
+  const [revistas, setRevistas] = useState<Revista[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const [filtros, setFiltros] = useState<FilterState>({
     busca: '',
@@ -52,16 +48,28 @@ export function useBiblioteca() {
     direction: 'desc'
   });
 
-  // 🔹 Salva no localStorage sempre que mudar
+  // 🔹 Carrega os dados do backend
   useEffect(() => {
-    localStorage.setItem('artigos', JSON.stringify(artigos));
-  }, [artigos]);
+    async function carregarDados() {
+      try {
+        setLoading(true);
+        const [artigosRes, revistasRes] = await Promise.all([
+          getAllArtigos(),
+          getAllRevistas()
+        ]);
+        setArtigos(artigosRes || []);
+        setRevistas(revistasRes || []);
+      } catch (error) {
+        console.error('Erro ao carregar dados da biblioteca:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-  useEffect(() => {
-    localStorage.setItem('revistas', JSON.stringify(revistas));
-  }, [revistas]);
+    carregarDados();
+  }, []);
 
-  // 🔎 Aplica filtros e organiza por semestre
+  // 🔎 Filtros e organização por semestre
   const dados: SemestreData[] = useMemo(() => {
     const map = new Map<string, SemestreData>();
 
@@ -82,6 +90,7 @@ export function useBiblioteca() {
     const q = filtros.busca?.trim()?.toLowerCase() || '';
     const matchesText = (txt?: string) => !q || (txt || '').toLowerCase().includes(q);
 
+    // 🔹 Filtro de revistas
     if (filtros.tipo === 'revistas' || filtros.tipo === 'todos') {
       revistas.forEach(r => {
         if (filtros.semestre && getSemestreLabel(getPublicationDate(r)) !== filtros.semestre) return;
@@ -94,6 +103,7 @@ export function useBiblioteca() {
       });
     }
 
+    // 🔹 Filtro de artigos
     if (filtros.tipo === 'artigos' || filtros.tipo === 'todos') {
       artigos.forEach(a => {
         if (filtros.semestre && getSemestreLabel(getPublicationDate(a)) !== filtros.semestre) return;
@@ -106,6 +116,7 @@ export function useBiblioteca() {
       });
     }
 
+    // 🔹 Ordena os semestres
     const arr = Array.from(map.values());
     arr.sort((a, b) => {
       const yearA = Number(a.semestre.match(/\d{4}/)?.[0] || 0);
@@ -124,14 +135,9 @@ export function useBiblioteca() {
     totalSemestres: dados.length,
   }), [artigos.length, revistas.length, dados.length]);
 
-  // ➕ Funções para adicionar
-  const adicionarArtigo = (novo: Artigo) => {
-    setArtigos(prev => [...prev, novo]);
-  };
-
-  const adicionarRevista = (nova: Revista) => {
-    setRevistas(prev => [...prev, nova]);
-  };
+  // ➕ Adicionar novos itens
+  const adicionarArtigo = (novo: Artigo) => setArtigos(prev => [...prev, novo]);
+  const adicionarRevista = (nova: Revista) => setRevistas(prev => [...prev, nova]);
 
   return {
     dados,
@@ -143,6 +149,7 @@ export function useBiblioteca() {
     artigos,
     revistas,
     adicionarArtigo,
-    adicionarRevista
+    adicionarRevista,
+    loading
   };
 }

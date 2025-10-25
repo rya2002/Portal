@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockUsers } from "../../../../data/mockData"; 
-import { useBiblioteca } from "../../hooks/useBiblioteca"; 
-import { Artigo, Revista } from "../../types"; 
+import { useBiblioteca } from "../../hooks/useBiblioteca";
+import { Artigo, Revista } from "../../types";
+import { getAllUsersRequest } from "../../../../services/userService";
+
+interface Usuario {
+  id: string;
+  nome: string;
+  email: string;
+  tipoUsuario: number;
+}
 
 export default function PublicPage() {
   const navigate = useNavigate();
   const { adicionarArtigo, adicionarRevista } = useBiblioteca();
 
   const [activeTab, setActiveTab] = useState<"artigos" | "revistas">("artigos");
+  const [users, setUsers] = useState<Usuario[]>([]);
 
   // Estados para Artigo
   const [tituloArtigo, setTituloArtigo] = useState("");
@@ -32,9 +40,24 @@ export default function PublicPage() {
   const [novaKeywordRevista, setNovaKeywordRevista] = useState("");
   const [arquivoRevista, setArquivoRevista] = useState<File | null>(null);
 
-  // Lista de usuários elegíveis (exclui aluno-comum e administrador)
-  const eligibleAuthors = Object.values(mockUsers).filter(
-    (u) => u.userType !== "aluno-comum" && u.userType !== "administrador"
+  useEffect(() => {
+    async function getAllUsers() {
+      const usersFromApi = await getAllUsersRequest(); // Promise<UserProfile[]>
+      // Mapeia resultado da API para o formato do Usuario local and provém por um tipoUsuario padrão faltando
+      const mappedUsers: Usuario[] = (usersFromApi as any[]).map((u) => ({
+        id: u.id,
+        nome: u.nome,
+        email: u.email,
+        tipoUsuario: u.tipoUsuario ?? 0,
+      }));
+      setUsers(mappedUsers);
+    }
+    getAllUsers();
+  }, []);
+
+  // Lista de usuários elegíveis (1 e 2 = Aluno NEJUSC e Professor)
+  const eligibleAuthors = users.filter(
+    (u) => u.tipoUsuario === 1 || u.tipoUsuario === 2
   );
 
   // Helpers
@@ -58,16 +81,6 @@ export default function PublicPage() {
   const removerKeywordRevista = (kw: string) =>
     setKeywordsRevista(keywordsRevista.filter((k) => k !== kw));
 
-  // 🔧 converte arquivo em Base64
-  function toBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-  }
-
   // Publicar Artigo
   const handleAddArtigo = () => {
     const novoArtigo: Artigo = {
@@ -81,33 +94,18 @@ export default function PublicPage() {
       keywords: keywordsArtigo,
     };
     adicionarArtigo(novoArtigo);
-
-    // limpar campos
-    setTituloArtigo("");
-    setDescricaoArtigo("");
-    setDataArtigo("");
-    setAutoresArtigo([]);
-    setAreaArtigo("");
-    setKeywordsArtigo([]);
-    setArquivoArtigo(null);
-
     alert("Artigo publicado com sucesso!");
     navigate("/biblioteca");
   };
 
   // Publicar Revista
-  const handleAddRevista = async () => {
-    let capaBase64 = "";
-    if (capaRevista) {
-      capaBase64 = await toBase64(capaRevista); // converte capa para Base64
-    }
-
+  const handleAddRevista = () => {
     const novaRevista: Revista = {
       id: Date.now().toString(),
       titulo: tituloRevista,
       descricao: descricaoRevista,
       edicao: edicaoRevista,
-      capa: capaBase64,
+      capaUrl: capaRevista ? URL.createObjectURL(capaRevista) : undefined,
       publicacao: dataRevista,
       arquivopdf: arquivoRevista ? arquivoRevista.name : "",
       autores: autoresRevista,
@@ -115,18 +113,6 @@ export default function PublicPage() {
       keywords: keywordsRevista,
     };
     adicionarRevista(novaRevista);
-
-    // limpar campos
-    setTituloRevista("");
-    setDescricaoRevista("");
-    setEdicaoRevista("");
-    setCapaRevista(null);
-    setDataRevista("");
-    setAutoresRevista([]);
-    setAreaRevista("");
-    setKeywordsRevista([]);
-    setArquivoRevista(null);
-
     alert("Revista publicada com sucesso!");
     navigate("/biblioteca");
   };
@@ -199,8 +185,8 @@ export default function PublicPage() {
             }
           >
             {eligibleAuthors.map((u) => (
-              <option key={u.email} value={u.name}>
-                {u.name} ({u.userType})
+              <option key={u.email} value={u.nome}>
+                {u.nome} ({u.tipoUsuario})
               </option>
             ))}
           </select>
@@ -212,7 +198,6 @@ export default function PublicPage() {
             onChange={(e) => setAreaArtigo(e.target.value)}
           />
 
-          {/* Keywords */}
           <div>
             <div className="flex gap-2 mb-2">
               <input
@@ -305,8 +290,8 @@ export default function PublicPage() {
             }
           >
             {eligibleAuthors.map((u) => (
-              <option key={u.email} value={u.name}>
-                {u.name} ({u.userType})
+              <option key={u.email} value={u.nome}>
+                {u.nome} ({u.tipoUsuario})
               </option>
             ))}
           </select>
@@ -318,7 +303,6 @@ export default function PublicPage() {
             onChange={(e) => setAreaRevista(e.target.value)}
           />
 
-          {/* Keywords */}
           <div>
             <div className="flex gap-2 mb-2">
               <input

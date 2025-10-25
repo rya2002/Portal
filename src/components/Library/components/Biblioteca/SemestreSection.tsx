@@ -1,61 +1,36 @@
-import { Calendar, FileText, BookOpen } from 'lucide-react';
-import { SemestreData } from '../../types';
+import React from 'react';
 import ItemCard from './ItemCard';
+import type { Artigo, Revista } from '../../types/index';
 
 interface SemestreSectionProps {
-  semestreData: SemestreData;
-  tipoAtivo: 'artigo' | 'revista';
+  semestre: string;
+  artigos: Artigo[];
+  revistas: Revista[];
 }
 
-export default function SemestreSection({ semestreData, tipoAtivo }: SemestreSectionProps) {
-  const itens = tipoAtivo === 'artigo' ? semestreData.artigos : semestreData.revistas;
-  const totalArtigos = semestreData.artigos.length;
-  const totalRevistas = semestreData.revistas.length;
+const SemestreSection: React.FC<SemestreSectionProps> = ({ semestre, artigos, revistas }) => {
+  const temArtigos = artigos.length > 0;
+  const temRevistas = revistas.length > 0;
 
-  if (itens.length === 0) {
-    return null;
-  }
+  if (!temArtigos && !temRevistas) return null;
 
   return (
     <section className="mb-8">
-      {/* Cabeçalho do Semestre */}
-      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 mb-6 border-l-4 border-blue-500">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Calendar className="h-6 w-6 text-blue-600" />
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">
-                {semestreData.semestre}
-              </h2>
-              <p className="text-sm text-gray-600">
-                {semestreData.semestre.endsWith('.1') ? 'Janeiro - Junho' : 'Julho - Dezembro'} {semestreData.semestre.split('.')[0]}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-4 text-sm">
-            <div className="flex items-center space-x-1 text-gray-600">
-              <FileText className="h-4 w-4" />
-              <span>{totalArtigos} artigo{totalArtigos !== 1 ? 's' : ''}</span>
-            </div>
-            <div className="flex items-center space-x-1 text-gray-600">
-              <BookOpen className="h-4 w-4" />
-              <span>{totalRevistas} revista{totalRevistas !== 1 ? 's' : ''}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <h2 className="text-xl font-semibold mb-4 text-neutral-800 dark:text-neutral-100">
+        {semestre}
+      </h2>
 
-      {/* Lista de Itens */}
-      <div className="space-y-4">
-        {itens.map((item) => (
-          <ItemCard
-            key={item.id}
-            item={item}
-            tipo={tipoAtivo}
-          />
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {revistas.map(r => (
+          <ItemCard key={r.id} tipo="revista" item={r} />
+        ))}
+
+        {artigos.map(a => (
+          <ItemCard key={a.id} tipo="artigo" item={a} />
         ))}
       </div>
     </section>
   );
-}
+};
+
+export default SemestreSection;

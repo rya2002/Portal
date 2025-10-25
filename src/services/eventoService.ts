@@ -46,16 +46,14 @@ export async function createEventoRequest(eventData: CreateEventData): Promise<{
     
     return res.data.eventoId || res.data; 
 }
-/
 
-/
+
 export async function updateEventoRequest(id: string, eventData: UpdateEventData): Promise<void> {
    
     await api.put(`/evento/${id}`, eventData);
    
 }
 
-/
 export async function deleteEventoRequest(id: string): Promise<void> {
     await api.delete(`/evento/${id}`);
     // Retorna OK (200) em caso de sucesso.
