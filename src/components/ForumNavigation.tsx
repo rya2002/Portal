@@ -1,7 +1,7 @@
 import React from "react";
 import { PlusCircle, MessageSquare, Settings } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-
+import { createForum } from "../services/forumService"; // <-- integração aqui
 
 type Props = {
   activeTab: 'discussions' | 'manage' | 'request-publication';
@@ -12,13 +12,30 @@ const ForumNavigation: React.FC<Props> = ({ activeTab, onTabChange }) => {
   const { user } = useAuth();
 
   const isAdmin = ['administrador', 'professor'].includes(user?.userType || '');
-  const isAuthenticated    = user?.userType && user?.userType !== 'visitante';
+  const isAuthenticated = user?.userType && user?.userType !== 'visitante';
 
-const tabs = [
-  { id: 'discussions' as const, label: 'Discussões',      icon: MessageSquare, available: true     },
-  { id: 'manage'      as const, label: 'Gerenciar Fórum', icon: Settings,      available: isAdmin  },
-];
+  const tabs = [
+    { id: 'discussions' as const, label: 'Discussões', icon: MessageSquare, available: true },
+    { id: 'manage' as const, label: 'Gerenciar Fórum', icon: Settings, available: isAdmin },
+  ];
 
+  const handleSolicitarPublicacao = async () => {
+    try {
+      const newForum = {
+        titulo: "Nova solicitação de publicação",
+        conteudo: "Conteúdo de teste para integração com o back-end",
+        autorId: user?.id || "usuário-teste",
+      };
+
+      const response = await createForum(newForum);
+      console.log("Fórum criado com sucesso:", response);
+      alert("Solicitação de publicação enviada!");
+      onTabChange('request-publication');
+    } catch (error) {
+      console.error("Erro ao criar fórum:", error);
+      alert("Erro ao solicitar publicação.");
+    }
+  };
 
   return (
     <div className="bg-white shadow-sm border-b border-gray-200 mb-8">
@@ -46,16 +63,16 @@ const tabs = [
             })}
           </div>
 
-          {/* Só o botão de Solicitar Publicação à direita */}
+          {/* Botão de Solicitar Publicação */}
           <div>
             {isAuthenticated && (
-            <button
-              onClick={() => onTabChange('request-publication')}
-              className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>Solicitar Publicação</span>
-            </button>
+              <button
+                onClick={handleSolicitarPublicacao}
+                className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>Solicitar Publicação</span>
+              </button>
             )}
           </div>
         </div>
