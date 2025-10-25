@@ -6,24 +6,11 @@ import AddMediaModal from "./Event/teste/Eventos/components/AddMediaModal";
 import { Event, Midia, AddMediaPayload } from "./Event/teste/Eventos/types";
 import { useAuth } from "../contexts/AuthContext";
 
-// Serviços para chamar a API
-const API_URL = "https://seu-backend.com/api/evento";
-
-const fetchEvents = async (): Promise<Event[]> => {
-  const res = await fetch(API_URL);
-  if (!res.ok) throw new Error("Erro ao buscar eventos");
-  return res.json();
-};
-
-const createEvent = async (eventData: Omit<Event, "id">): Promise<Event> => {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(eventData),
-  });
-  if (!res.ok) throw new Error("Erro ao criar evento");
-  return res.json();
-};
+// ⬇️ Importa os services corretos (sem axios direto aqui)
+import {
+  getAllEventosRequest,
+  createEventoRequest,
+} from "../services/eventoService";
 
 const EventView = () => {
   const { user } = useAuth();
@@ -41,31 +28,37 @@ const EventView = () => {
     user?.userType || ""
   );
 
-  // Carregar eventos da API
+  // 🔄 Carregar eventos da API
   useEffect(() => {
-    setLoading(true);
-    fetchEvents()
-      .then((data) => {
+    const carregarEventos = async () => {
+      try {
+        setLoading(true);
+        const data = await getAllEventosRequest();
         setEvents(data);
         setFilteredEvents(data);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+      } catch (err: any) {
+        setError(err.message || "Erro ao carregar eventos");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarEventos();
   }, []);
 
-  // Adicionar evento
+  // ➕ Criar novo evento
   const handleAddEvent = async (eventData: Omit<Event, "id">) => {
     try {
-      const newEvent = await createEvent(eventData);
-      const updated = [newEvent, ...events];
+      const newEvent = await createEventoRequest(eventData);
+      const updated = [newEvent as Event, ...events];
       setEvents(updated);
       setFilteredEvents(updated);
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao adicionar evento:", err);
     }
   };
 
-  // Adicionar mídia (continua local por enquanto)
+  // 🎞️ Adicionar mídia (local, sem backend por enquanto)
   const handleAddMedia = (payload: AddMediaPayload) => {
     const newMedia: Midia = {
       id: `media-${Date.now()}`,
@@ -105,11 +98,11 @@ const EventView = () => {
           </div>
         )}
 
-        {/* Loading / Erro */}
+        {/* ⏳ Loading / Erro */}
         {loading && <p className="text-center py-12">Carregando eventos...</p>}
         {error && <p className="text-center text-red-500 py-12">{error}</p>}
 
-        {/* Carrossel */}
+        {/* 🎠 Carrossel de Eventos */}
         {!loading && !error && (
           <EventCarousel
             events={filteredEvents}
@@ -118,7 +111,7 @@ const EventView = () => {
           />
         )}
 
-        {/* Galeria de Fotos e Vídeos */}
+        {/* 🖼️ Galeria de Fotos e Vídeos */}
         <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold text-gray-900">Fotos e Vídeos</h2>
@@ -154,7 +147,10 @@ const EventView = () => {
                         {m.title || (m.tipo === "foto" ? "Foto" : "Vídeo")}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {m.uploadedBy} • {m.date ? new Date(m.date).toLocaleDateString() : "Data desconhecida"}
+                        {m.uploadedBy} •{" "}
+                        {m.date
+                          ? new Date(m.date).toLocaleDateString()
+                          : "Data desconhecida"}
                       </div>
                     </div>
 
@@ -174,7 +170,7 @@ const EventView = () => {
         </section>
       </main>
 
-      {/* Modais */}
+      {/* 🧩 Modais */}
       <AddEventModal
         isOpen={isAddEventModalOpen}
         onClose={() => setIsAddEventModalOpen(false)}

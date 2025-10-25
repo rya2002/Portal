@@ -1,60 +1,66 @@
 // src/services/eventoService.ts
 
-import api from './api';
-
 // Interface básica (ajuste conforme o formato real do seu evento)
-interface Evento {
-    id: string; // Guid no C#
-    nome: string;
-    data: string; // Ou outro formato de data/hora
-    // Adicione outros campos conforme a estrutura do seu backend (ex: Local, Descricao, etc.)
+export interface Evento {
+  id: string; // Guid no C#
+  nome: string;
+  data: string; // Pode ser ISO ou outro formato vindo do backend
+  // Outros campos conforme o backend
 }
 
-// Interface para a criação de um evento (baseada no CreateEventCommand)
-interface CreateEventData {
-    nome: string;
-    // ... outros campos necessários para a criação ...
+export interface CreateEventData {
+  nome: string;
+  // Outros campos necessários
 }
 
-// Interface para a atualização de um evento (baseada no UpdateEventCommand)
-interface UpdateEventData {
-    id: string;
-    nome: string;
-    
+export interface UpdateEventData {
+  id: string;
+  nome: string;
+  // Outros campos se houver
 }
+
+// 🔗 Base URL do backend
+const API_URL = "https://localhost:7032/api/evento"; // ajuste conforme teu back
+
+// GET - Buscar todos os eventos
 export async function getAllEventosRequest(): Promise<Evento[]> {
-    const res = await api.get('/evento');
-    // Seu controller retorna 'eventos' diretamente no corpo.
-    return res.data; 
+  const res = await fetch(API_URL);
+  if (!res.ok) throw new Error("Erro ao buscar eventos");
+  return res.json();
 }
 
-
+// GET - Buscar um evento por ID
 export async function getEventoByIdRequest(id: string): Promise<Evento> {
-    const res = await api.get(`/evento/${id}`);
-    
-    if (!res.data.isSuccess) {
-        throw new Error(res.data.message || "Falha ao buscar evento.");
-    }
-    return res.data.data;
+  const res = await fetch(`${API_URL}/${id}`);
+  if (!res.ok) throw new Error("Erro ao buscar evento por ID");
+  return res.json();
 }
 
-
-
-export async function createEventoRequest(eventData: CreateEventData): Promise<{ id: string }> {
-    
-    const res = await api.post('/evento', eventData); 
-    
-    return res.data.eventoId || res.data; 
+// POST - Criar um novo evento
+export async function createEventoRequest(eventData: CreateEventData): Promise<Evento> {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(eventData),
+  });
+  if (!res.ok) throw new Error("Erro ao criar evento");
+  return res.json();
 }
 
-
+// PUT - Atualizar evento existente
 export async function updateEventoRequest(id: string, eventData: UpdateEventData): Promise<void> {
-   
-    await api.put(`/evento/${id}`, eventData);
-   
+  const res = await fetch(`${API_URL}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(eventData),
+  });
+  if (!res.ok) throw new Error("Erro ao atualizar evento");
 }
 
+// DELETE - Deletar evento
 export async function deleteEventoRequest(id: string): Promise<void> {
-    await api.delete(`/evento/${id}`);
-    // Retorna OK (200) em caso de sucesso.
+  const res = await fetch(`${API_URL}/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Erro ao deletar evento");
 }
