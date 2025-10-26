@@ -7,7 +7,7 @@ import ProfilePage from "./components/ProfilePage";
 import LibraryPage from './components/LibraryPage';
 import ChatPage from './components/ChatPage';
 import EventPage from './components/EventPage';
-import { ForumLayout } from './components/ForumLayout';
+import { ForumView } from './components/Forum/components/ForumView';
 import Header from "./components/Header";
 import PublicPage from './components/Library/components/Biblioteca/PublicPage';
 import BibliotecaView from './components/Library/components/Biblioteca/BibliotecaView';
@@ -30,7 +30,7 @@ function App() {
             <Route path="publicar" element={<PublicPage />} />
           </Route>
           <Route path="/chat" element={<ChatPage />} />
-          <Route path="/forum" element={<ForumLayout />} />
+          <Route path="/forum" element={<ForumView />} />
           <Route path="/eventos" element={<EventPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -9,7 +9,7 @@ export interface UserProfile {
     id: string; 
     nome: string;
     email: string;
-    userType: "visitante" | "aluno-comum" | "aluno-nejusc" | "professor" | "administrador";
+    tipoUsuario: 'admin' | 'professor' | 'alunoNEJUSC' | 'usuario';
     avatar?: string;
     // Adicione outros campos que o seu 'GetAllUsersQuery' retorna, se necessário.
 }

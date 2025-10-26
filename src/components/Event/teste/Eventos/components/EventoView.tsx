@@ -1,8 +1,5 @@
-
-
 import React, { useState, useEffect, useCallback } from 'react';
-
-import { getAllEventosRequest } from './services/eventoService'; 
+import { getAllEventosRequest } from '../../../../../services/eventoService'; 
 
 
 interface Evento {

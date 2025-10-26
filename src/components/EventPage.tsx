@@ -1,5 +1,5 @@
 import React from "react";
-import EventView from "./EventView";
+import EventView from "../components/Event/teste/Eventos/components/EventView";
 import Footer from "./Footer";
 
 

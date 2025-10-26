@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash } from "lucide-react";
-import EventCarousel from "./Event/teste/Eventos/components/EventCarousel";
-import AddEventModal from "./Event/teste/Eventos/components/AddEventModal";
-import AddMediaModal from "./Event/teste/Eventos/components/AddMediaModal";
-import { Event, Midia, AddMediaPayload } from "./Event/teste/Eventos/types";
-import { useAuth } from "../contexts/AuthContext";
+import EventCarousel from "../components/EventCarousel";
+import AddEventModal from "../components/AddEventModal";
+import AddMediaModal from "../components/AddMediaModal";
+import { Event, Midia, AddMediaPayload } from "../../Eventos/types";
+import { useAuth } from "../../../../../contexts/AuthContext";
 
 // ⬇️ Importa os services corretos (sem axios direto aqui)
 import {
   getAllEventosRequest,
   createEventoRequest,
-} from "../services/eventoService";
+} from "../../../../../services/eventoService";
 
 const EventView = () => {
   const { user } = useAuth();
@@ -24,9 +24,7 @@ const EventView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const canAddItems = ["professor", "administrador", "aluno-nejusc"].includes(
-    user?.userType || ""
-  );
+  const canAddItems = user && ['alunoNEJUSC', 'professor', 'admin'].includes(user.role);
 
   // 🔄 Carregar eventos da API
   useEffect(() => {

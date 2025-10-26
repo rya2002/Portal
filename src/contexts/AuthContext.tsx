@@ -1,6 +1,6 @@
 // src/context/AuthContext.tsx
 import { createContext, useState, useContext, useEffect } from 'react';
-import { AuthContextType, User } from '@/types/auth';
+import { AuthContextType, User } from '../types/auth';
 import { loginRequest, logoutRequest } from '../services/userService';
 import api from '../services/api';
 
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         id: response.usuario.id,
         name: response.usuario.nome,
         email: response.usuario.email,
-        role: response.tipoUsuario || response.usuario.userType || 'visitante',
+        role: response.tipoUsuario || 'usuario',
         avatar: response.usuario.avatar,
       };
 
