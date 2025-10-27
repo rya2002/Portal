@@ -1,6 +1,6 @@
-// src/views/AdminDashboard.tsx
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useForum } from '../hooks/useForum';
 import {
   FileText,
   MessageSquare,
@@ -11,20 +11,13 @@ import {
   AlertTriangle,
   Users,
 } from 'lucide-react';
-import {
-  getAllPostagens,
-  updatePostagem,
-} from '../../../services/forumService';
-import { Postagem } from '../types/index';
-import { toast } from 'react-toastify';
 
 export function AdminDashboard() {
   const { user } = useAuth();
-  const [postagens, setPostagens] = useState<Postagem[]>([]);
+  const { posts, atualizarPostagem, carregarPostagens, loading } = useForum();
   const [activeSection, setActiveSection] = useState<'overview' | 'publications'>('overview');
-  const [loading, setLoading] = useState(false);
 
-  const allowedRoles = ['administrador', 'professor'];
+  const allowedRoles = ['admin', 'professor'];
 
   if (!allowedRoles.includes(user?.role || '')) {
     return (
@@ -36,31 +29,9 @@ export function AdminDashboard() {
     );
   }
 
-  async function carregarPostagens() {
-    setLoading(true);
-    try {
-      const data = await getAllPostagens();
-      setPostagens(data);
-    } catch (err) {
-      toast.error('Erro ao carregar postagens.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
     carregarPostagens();
-  }, []);
-
-  const handleRequestAction = async (id: string, action: 'Aprovado' | 'Rejeitado') => {
-    try {
-      await updatePostagem(id, { status: action });
-      toast.success(`Postagem ${action === 'Aprovado' ? 'aprovada' : 'rejeitada'}!`);
-      carregarPostagens();
-    } catch {
-      toast.error('Erro ao atualizar status da postagem.');
-    }
-  };
+  }, [carregarPostagens]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -93,13 +64,13 @@ export function AdminDashboard() {
     { label: 'Postagens Hoje', value: '8', icon: MessageSquare, color: 'green' },
     {
       label: 'Postagens Pendentes',
-      value: postagens.filter((p) => p.status === 'Pendente').length.toString(),
+      value: posts.filter((p) => p.status === 'Pendente').length.toString(),
       icon: FileText,
       color: 'yellow',
     },
     {
       label: 'Postagens Aprovadas',
-      value: postagens.filter((p) => p.status === 'Aprovado').length.toString(),
+      value: posts.filter((p) => p.status === 'Aprovado').length.toString(),
       icon: Shield,
       color: 'purple',
     },
@@ -158,93 +129,72 @@ export function AdminDashboard() {
               );
             })}
           </div>
-
-          {/* Recent Activity */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Atividades Recentes</h3>
-            </div>
-            <div className="p-6 space-y-3">
-              <p className="text-gray-600 text-sm">
-                Mostrando atividades automáticas baseadas nas postagens recentes.
-              </p>
-            </div>
-          </div>
         </div>
       )}
 
-      {/* Publications (Postagens) */}
+      {/* Publications */}
       {activeSection === 'publications' && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Gerenciar Postagens</h3>
-          </div>
-
+          <h3 className="text-lg font-semibold text-gray-900">Gerenciar Postagens</h3>
           {loading ? (
             <p>Carregando postagens...</p>
           ) : (
-            <div className="space-y-4">
-              {postagens.length === 0 ? (
-                <p className="text-gray-600">Nenhuma postagem encontrada.</p>
-              ) : (
-                postagens.map((post) => {
-                  const StatusIcon = getStatusIcon(post.status);
-                  return (
-                    <div
-                      key={post.id}
-                      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                            {post.titulo}
-                          </h4>
-                          <p className="text-gray-700 mb-3">{post.conteudo}</p>
+            posts.map((post) => {
+              const StatusIcon = getStatusIcon(post.status);
+              return (
+                <div
+                  key={post.id}
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                        {post.titulo}
+                      </h4>
+                      <p className="text-gray-700 mb-3">{post.conteudo}</p>
 
-                          <div className="flex items-center space-x-4 text-sm text-gray-500">
-                            <span>Por: {post.autor}</span>
-                            <span>
-                              Publicado em:{' '}
-                              {new Date(post.dataPublicacao).toLocaleDateString('pt-BR')}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center space-x-3">
-                          <span
-                            className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                              post.status
-                            )}`}
-                          >
-                            <StatusIcon className="w-3 h-3" />
-                            <span>{post.status}</span>
-                          </span>
-                        </div>
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <span>Por: {post.autor}</span>
+                        <span>
+                          Publicado em:{' '}
+                          {new Date(post.dataPublicacao).toLocaleDateString('pt-BR')}
+                        </span>
                       </div>
-
-                      {post.status === 'Pendente' && (
-                        <div className="flex space-x-3 pt-4 border-t border-gray-200">
-                          <button
-                            onClick={() => handleRequestAction(post.id, 'Aprovado')}
-                            className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Aprovar</span>
-                          </button>
-                          <button
-                            onClick={() => handleRequestAction(post.id, 'Rejeitado')}
-                            className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-                          >
-                            <XCircle className="w-4 h-4" />
-                            <span>Rejeitar</span>
-                          </button>
-                        </div>
-                      )}
                     </div>
-                  );
-                })
-              )}
-            </div>
+
+                    <div className="flex items-center space-x-3">
+                      <span
+                        className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          post.status
+                        )}`}
+                      >
+                        <StatusIcon className="w-3 h-3" />
+                        <span>{post.status}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {post.status === 'Pendente' && (
+                    <div className="flex space-x-3 pt-4 border-t border-gray-200">
+                      <button
+                        onClick={() => atualizarPostagem(post.id, { status: 'Aprovado' })}
+                        className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm font-medium"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Aprovar</span>
+                      </button>
+                      <button
+                        onClick={() => atualizarPostagem(post.id, { status: 'Rejeitado' })}
+                        className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-medium"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        <span>Rejeitar</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
       )}

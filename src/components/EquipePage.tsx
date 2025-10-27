@@ -1,4 +1,14 @@
 import Footer from './Footer';
+import AdrieleSantana from '../assets/fotos/AdrieleSantana_.jpg';
+import BrunoCastro from '../assets/fotos/BRUNOCASTRO.jpeg';
+import DraMariaFatima from '../assets/fotos/MARIADEFÁTIMA.jpeg';
+import ManuelaSilva from '../assets/fotos/MANUELASILVA.jpeg';
+import MileneSouza from '../assets/fotos/MILENESOUZA.jpg';
+import NatáliaCavalcante from '../assets/fotos/NatáliaCavalcante.jpg'; 
+import PamelaSantos from '../assets/fotos/PâmelaSantos.jpeg';
+import RayannaMendes from '../assets/fotos/RayannaAraújo.jpg';
+import VitóriaSilva from '../assets/fotos/VitóriaSantos_.jpg';
+import YasminSilva from '../assets/fotos/YasminPires_.jpg';
 
 type Membro = {
   nome: string;
@@ -11,59 +21,59 @@ const membrosNEJUSC: Membro[] = [
   {
     nome: 'Dra. Maria de Fátima Cardoso',
     email: 'maria.cardoso@unijorge.edu.br',
-    foto: '',
+    foto: DraMariaFatima,
     funcao: 'Coordenadora',
   },
   {
     nome: 'Bruno Lopo de Castro',
     email: 'brunolopo07@gmail.com',
-    foto: '',
+    foto: BrunoCastro,
   },
   {
     nome: 'Milene Souza Cruz',
     email: 'milenesouzacruz85@gmail.com',
-    foto: '',
+    foto: MileneSouza,
   },
   {
     nome: 'Rayanna Araújo Mendes',
     email: 'mendesrayanna0@gmail.com',
-    foto: '',
+    foto: RayannaMendes,
   },
   {
     nome: 'Yasmin Pires de Jesus Silva',
     email: 'vanuzapires.24@gmail.com',
-    foto: '',
+    foto: YasminSilva,
   },
   {
     nome: 'Adriele Santana Alves',
     email: 'Sntadriele031@gmail.com',
-    foto: '',
+    foto: AdrieleSantana,
   },
   {
     nome: 'Natália Amaral Cavalcante',
     email: 'cavalcantenataliaac@gmail.com',
-    foto: '',
+    foto: NatáliaCavalcante,
   },
   {
     nome: 'Manuela da Silva dos Santos',
     email: 'manuelascrosa@gmail.com',
-    foto: '',
+    foto: ManuelaSilva,
   },
   {
     nome: 'Vitória Santos da Silva',
     email: 'viihrios16@gmail.com',
-    foto: '',
+    foto: VitóriaSilva,
   },
   {
     nome: 'Pâmela das Virgens dos Santos',
     email: 'pamelavirgens8@gmail.com',
-    foto: '',
+    foto: PamelaSantos,
   },
 ];
 
 const programadores: Membro[] = [
   {
-    nome: 'Ryan Maia',
+    nome: 'Ryan Cerqueira Maia',
     email: 'maia26498@gmail.com',
     foto: '',
   },

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { registerRequest } from "../services/userService";
-import LogoNejusc from "../assets/LOGONEJUSC-16.png";
+import LogoNejusc from "../assets/Logos/LOGONEJUSC-16.png";
 
 // Interface de dados do formulário
 interface FormData {

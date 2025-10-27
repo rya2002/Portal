@@ -1,7 +1,8 @@
 import { FileText, BookOpen, Download } from 'lucide-react';
 import { Artigo, Revista } from '../../types';
 import { useEffect, useState } from 'react';
-import { getAllRevistas } from '../../../../services/revistaService';
+import { getAllRevistas, downloadPdfRevista } from '../../../../services/revistaService';
+import { downloadPdfArtigo } from '../../../../services/artigoService';
 
 interface ItemCardProps {
   item: Artigo | Revista;
@@ -14,23 +15,21 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
   useEffect(() => {
     async function getRevistas() {
       const response = await getAllRevistas();
-      setRevistas(response?.data as Revista[]);
+      setRevistas(response);
     }
     getRevistas();
   }, []);
 
-  const handleDownload = (it: Artigo | Revista) => {
-    if (!it.arquivopdf) {
-      alert('Nenhum PDF disponível para este item.');
-      return;
+  const handleDownload = async (it: Artigo | Revista) => {
+    try {
+      if (tipo === 'revista') {
+        await downloadPdfRevista(it.id);
+      } else {
+        await downloadPdfArtigo(it.id);
+      }
+    } catch {
+      alert('Erro ao baixar PDF. Verifique se o arquivo está disponível.');
     }
-
-    const link = document.createElement('a');
-    link.href = it.arquivopdf;
-    link.download = `${it.titulo}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   if (tipo === 'revista') {
@@ -51,9 +50,7 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
         )}
 
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {revista.titulo}
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900">{revista.titulo}</h3>
           <p className="text-sm text-gray-600">{revista.descricao}</p>
 
           {revista.autores?.length > 0 && (

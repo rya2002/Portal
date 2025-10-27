@@ -1,42 +1,22 @@
-// src/services/eventoService.ts
+import { Evento, CreateEventData, UpdateEventData } from "../components/Event/teste/Eventos/types";
 
-// Interface básica (ajuste conforme o formato real do seu evento)
-export interface Evento {
-  id: string; // Guid no C#
-  nome: string;
-  data: string; // Pode ser ISO ou outro formato vindo do backend
-  // Outros campos conforme o backend
-}
+const API_URL = "https://localhost:7032/api/evento"; // 🔹 Ajuste conforme o backend
 
-export interface CreateEventData {
-  nome: string;
-  // Outros campos necessários
-}
-
-export interface UpdateEventData {
-  id: string;
-  nome: string;
-  // Outros campos se houver
-}
-
-// 🔗 Base URL do backend
-const API_URL = "https://localhost:7032/api/evento"; // ajuste conforme teu back
-
-// GET - Buscar todos os eventos
+// 🔹 GET - Buscar todos os eventos
 export async function getAllEventosRequest(): Promise<Evento[]> {
   const res = await fetch(API_URL);
   if (!res.ok) throw new Error("Erro ao buscar eventos");
   return res.json();
 }
 
-// GET - Buscar um evento por ID
+// 🔹 GET - Buscar evento por ID
 export async function getEventoByIdRequest(id: string): Promise<Evento> {
   const res = await fetch(`${API_URL}/${id}`);
   if (!res.ok) throw new Error("Erro ao buscar evento por ID");
   return res.json();
 }
 
-// POST - Criar um novo evento
+// 🔹 POST - Criar novo evento
 export async function createEventoRequest(eventData: CreateEventData): Promise<Evento> {
   const res = await fetch(API_URL, {
     method: "POST",
@@ -47,17 +27,18 @@ export async function createEventoRequest(eventData: CreateEventData): Promise<E
   return res.json();
 }
 
-// PUT - Atualizar evento existente
-export async function updateEventoRequest(id: string, eventData: UpdateEventData): Promise<void> {
+// 🔹 PUT - Atualizar evento existente
+export async function updateEventoRequest(id: string, eventData: UpdateEventData): Promise<Evento> {
   const res = await fetch(`${API_URL}/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(eventData),
   });
   if (!res.ok) throw new Error("Erro ao atualizar evento");
+  return res.json();
 }
 
-// DELETE - Deletar evento
+// 🔹 DELETE - Deletar evento
 export async function deleteEventoRequest(id: string): Promise<void> {
   const res = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",

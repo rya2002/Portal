@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useBiblioteca } from "../../hooks/useBiblioteca";
 import { Artigo, Revista } from "../../types";
 import { getAllUsersRequest } from "../../../../services/userService";
+import { uploadPdfArtigo } from "../../../../services/artigoService";
+import { uploadPdfRevista } from "../../../../services/revistaService";
 
 interface Usuario {
   id: string;
@@ -42,8 +44,7 @@ export default function PublicPage() {
 
   useEffect(() => {
     async function getAllUsers() {
-      const usersFromApi = await getAllUsersRequest(); // Promise<UserProfile[]>
-      // Mapeia resultado da API para o formato do Usuario local and provém por um tipoUsuario padrão faltando
+      const usersFromApi = await getAllUsersRequest();
       const mappedUsers: Usuario[] = (usersFromApi as any[]).map((u) => ({
         id: u.id,
         nome: u.nome,
@@ -55,12 +56,10 @@ export default function PublicPage() {
     getAllUsers();
   }, []);
 
-  // Lista de usuários elegíveis (1 e 2 = Aluno NEJUSC e Professor)
   const eligibleAuthors = users.filter(
     (u) => u.tipoUsuario === 1 || u.tipoUsuario === 2
   );
 
-  // Helpers
   const adicionarKeywordArtigo = () => {
     const kw = novaKeywordArtigo.trim();
     if (kw && !keywordsArtigo.includes(kw)) {
@@ -81,8 +80,7 @@ export default function PublicPage() {
   const removerKeywordRevista = (kw: string) =>
     setKeywordsRevista(keywordsRevista.filter((k) => k !== kw));
 
-  // Publicar Artigo
-  const handleAddArtigo = () => {
+  const handleAddArtigo = async () => {
     const novoArtigo: Artigo = {
       id: Date.now().toString(),
       titulo: tituloArtigo,
@@ -94,12 +92,14 @@ export default function PublicPage() {
       keywords: keywordsArtigo,
     };
     adicionarArtigo(novoArtigo);
+
+    if (arquivoArtigo) await uploadPdfArtigo(novoArtigo.id, arquivoArtigo);
+
     alert("Artigo publicado com sucesso!");
     navigate("/biblioteca");
   };
 
-  // Publicar Revista
-  const handleAddRevista = () => {
+  const handleAddRevista = async () => {
     const novaRevista: Revista = {
       id: Date.now().toString(),
       titulo: tituloRevista,
@@ -113,6 +113,9 @@ export default function PublicPage() {
       keywords: keywordsRevista,
     };
     adicionarRevista(novaRevista);
+
+    if (arquivoRevista) await uploadPdfRevista(novaRevista.id, arquivoRevista);
+
     alert("Revista publicada com sucesso!");
     navigate("/biblioteca");
   };
@@ -128,7 +131,6 @@ export default function PublicPage() {
 
       <h1 className="text-2xl font-bold mb-6">Publicar Conteúdo</h1>
 
-      {/* Tabs */}
       <div className="flex mb-6 border-b">
         <button
           onClick={() => setActiveTab("artigos")}
@@ -152,7 +154,6 @@ export default function PublicPage() {
         </button>
       </div>
 
-      {/* Formulário de Artigo */}
       {activeTab === "artigos" && (
         <div className="space-y-4">
           <input
@@ -246,7 +247,6 @@ export default function PublicPage() {
         </div>
       )}
 
-      {/* Formulário de Revista */}
       {activeTab === "revistas" && (
         <div className="space-y-4">
           <input

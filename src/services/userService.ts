@@ -111,3 +111,15 @@ export async function promoteUserToNejuscRequest(userId: string): Promise<void> 
 export async function changeUserRoleRequest(userId: string, newRole: string): Promise<void> {
     await api.post(`/usuario/change-role/${userId}`, { userType: newRole });
 }
+
+/**
+ * Atualiza o status (tipo) de um usuário.
+ * Endpoint: PUT /api/usuario/{id}/status
+ */
+export async function updateUserStatusRequest(userId: string, novoRole: string): Promise<void> {
+  const res = await api.put(`/usuario/${userId}/status`, { tipoUsuario: novoRole });
+  if (res.status !== 200 && res.status !== 204) {
+    throw new Error("Erro ao atualizar status do usuário.");
+  }
+}
+

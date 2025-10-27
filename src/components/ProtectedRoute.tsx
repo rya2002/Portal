@@ -22,7 +22,7 @@ export function ProtectedRoute({
   }
 
   // Se a rota exige um perfil específico e o usuário não corresponde → volta pro Home
-  if (requiredRole && (!user || user.userType !== requiredRole)) {
+  if (requiredRole && (!user || user.role !== requiredRole)) {
     return <Navigate to="/" replace />;
   }
 

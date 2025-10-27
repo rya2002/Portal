@@ -7,16 +7,28 @@ import {
   MicVocal,
   ArrowRight,
   Book,
+  Download,
 } from 'lucide-react';
 import Footer from './Footer';
+import capaRevista from '../assets/capas/EntreARampaEOAbismo.png';
+import { downloadPdfRevista } from '../services/revistaService'; // ✅ novo import
 
 export default function HomePage() {
   const scrollTo = useCallback((id: string) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
+
+  // 🆕 Função para baixar revista principal
+  const handleDownloadRevista = async () => {
+    try {
+      // aqui você pode usar o ID real da revista principal, exemplo:
+      const revistaId = '00000000-0000-0000-0000-000000000001';
+      await downloadPdfRevista(revistaId);
+    } catch {
+      alert('Erro ao baixar a revista principal.');
+    }
+  };
 
   return (
     <div className="w-full scroll-smooth bg-white">
@@ -68,13 +80,12 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/revista-direitos-vulnerabilidades.pdf"
-              download
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
+            <button
+              onClick={handleDownloadRevista}
+              className="flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
             >
-              📥 Baixar Revista
-            </a>
+              <Download className="h-5 w-5 mr-2" /> Baixar Revista
+            </button>
             <Link
               to="/biblioteca"
               className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition"
@@ -85,7 +96,7 @@ export default function HomePage() {
 
           <div className="mt-8 flex justify-center">
             <img
-              src="/capa-revista-direitos-vulnerabilidades.jpg"
+              src={capaRevista}
               alt="Capa da Revista Direitos e Vulnerabilidades"
               className="w-48 h-64 object-cover shadow-lg rounded"
             />

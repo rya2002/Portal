@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { X, Plus, Minus } from 'lucide-react';
-import { Event, Usuario } from '../types';
+import { Usuario } from '../types';
+import { CreateEventData } from '../../Eventos/types';
 
 interface AddEventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddEvent: (event: Omit<Event, 'id'>) => void;
+  onAddEvent: (eventData: CreateEventData) => void | Promise<void>;
 }
 
 const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAddEvent }) => {
@@ -63,12 +64,20 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAddEve
         nome: p.nome.trim()
       }));
 
-    const eventData: Omit<Event, 'id'> = {
-      ...formData,
-      palestrantes: palestrantesData
-    };
+    const eventData: CreateEventData = {
+  nome: formData.titulo,
+  descricao: formData.descricao,
+  dataInicio: formData.data,
+  local: formData.local,
+  area: formData.earea,
+  gratuito: formData.gratuito,
+  valor: formData.valor,
+  classificacaoIndicativa: formData.classificacaoIndicativa,
+  categoria: formData.categoria,
+  palestrantes: palestrantesData
+};
 
-    onAddEvent(eventData);
+onAddEvent(eventData);
     onClose();
     
     // Reset form

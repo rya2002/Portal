@@ -1,13 +1,14 @@
-// src/views/Forum/ForumView.tsx
 import { useState, useMemo } from 'react';
 import { MessageSquare, PlusCircle, Shield } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useForum } from '../hooks/useForum';
 import { ForumDiscussions } from './ForumDiscussions';
 import { ForumPostEditor } from './ForumPostEditor';
 import { AdminDashboard } from './AdminDashboard';
 
 export function ForumView() {
   const { user } = useAuth();
+  const { posts, loading } = useForum();
   const [activeTab, setActiveTab] = useState<'discussions' | 'create' | 'admin'>('discussions');
 
   const tabs = useMemo(() => {
@@ -21,21 +22,20 @@ export function ForumView() {
   const content = useMemo(() => {
     switch (activeTab) {
       case 'discussions':
-        return <ForumDiscussions />;
+        return <ForumDiscussions/>;
       case 'create':
         return <ForumPostEditor onBack={() => setActiveTab('discussions')} />;
       case 'admin':
         return ['admin', 'professor'].includes(user?.role || '')
           ? <AdminDashboard />
-          : <ForumDiscussions />;
+          : <ForumDiscussions/>;
       default:
-        return <ForumDiscussions />;
+        return <ForumDiscussions/>;
     }
-  }, [activeTab, user]);
+  }, [activeTab, user, posts, loading]);
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Barra de navegação */}
       <nav className="flex space-x-6 border-b border-gray-200 bg-white px-6 py-3">
         {tabs.map(({ id, label, icon: Icon }) => (
           <button

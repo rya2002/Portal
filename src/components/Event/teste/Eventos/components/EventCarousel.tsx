@@ -1,17 +1,19 @@
 import React, { useState, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
-import { Event } from '../types';
+import { Evento } from '../types';
 import EventCard from './EventCard';
 
 interface EventCarouselProps {
-  events: Event[];
+  eventos: Evento[];
   activeCategory: string;
-  onCategoryChange: (category: string) => void;
+  onCategoryChange: React.Dispatch<React.SetStateAction<string>>;
+  onRemove: (id: string) => Promise<void>;
   showFilter?: boolean;
 }
 
+
 const EventCarousel: React.FC<EventCarouselProps> = ({
-  events,
+  eventos,
   activeCategory,
   onCategoryChange,
   showFilter = true
@@ -55,7 +57,7 @@ const EventCarousel: React.FC<EventCarouselProps> = ({
     }
   };
 
-  const filteredEvents = events.filter(event => event.categoria === activeCategory);
+  const filteredEvents = eventos.filter(evento => evento.categoria === activeCategory);
 
   return (
     <section className="bg-blue-50 py-8">

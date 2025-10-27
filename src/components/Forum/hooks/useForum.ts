@@ -1,89 +1,133 @@
-// src/hooks/useForum.ts
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
 import {
   getAllPostagens,
+  getPostagemById,
   createPostagem,
   updatePostagem,
-  deletePostagem
+  deletePostagem,
 } from '../../../services/forumService';
+import { useAuth } from '../../../contexts/AuthContext';
 import { Postagem } from '../types/index';
+import { toast } from 'react-toastify';
 
+/**
+ * Hook centralizado para gerenciar postagens do fórum
+ * — inclui listagem, criação, atualização e exclusão
+ */
 export function useForum() {
   const { user } = useAuth();
   const [posts, setPosts] = useState<Postagem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedPost, setSelectedPost] = useState<Postagem | null>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔄 Carrega todas as postagens
+  /** 🔹 Carrega todas as postagens do backend */
   const carregarPostagens = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await getAllPostagens();
       setPosts(data);
-      setError(null);
     } catch (err) {
       console.error('Erro ao carregar postagens:', err);
       setError('Erro ao carregar postagens.');
+      toast.error('Erro ao carregar postagens.');
     } finally {
       setLoading(false);
     }
   }, []);
 
+  /** 🔹 Carregar postagem específica (por ID) */
+  const carregarPostagemPorId = useCallback(async (id: string) => {
+    setLoading(true);
+    try {
+      const data = await getPostagemById(id);
+      setSelectedPost(data);
+      return data;
+    } catch (err) {
+      console.error('Erro ao carregar postagem:', err);
+      toast.error('Erro ao buscar postagem.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /** 🔹 Criar nova postagem */
+  const adicionarPostagem = useCallback(
+    async (titulo: string, conteudo: string, categoria?: string) => {
+      if (!user) {
+        toast.error('Você precisa estar logado para criar uma postagem.');
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const novaPostagem = {
+          titulo,
+          conteudo,
+          categoria,
+          autorNome: user.name,
+          autorEmail: user.email,
+          dataPublicacao: new Date().toISOString(),
+          status: 'Pendente',
+        };
+
+        const data = await createPostagem(novaPostagem);
+        setPosts((prev) => [data, ...prev]);
+        toast.success('Postagem criada com sucesso!');
+      } catch (err) {
+        console.error('Erro ao criar postagem:', err);
+        toast.error('Erro ao criar postagem.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user]
+  );
+
+  /** 🔹 Atualizar postagem (ex: aprovar/rejeitar) */
+  const atualizarPostagem = useCallback(async (id: string, data: any) => {
+    try {
+      await updatePostagem(id, data);
+      setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, ...data } : p)));
+      toast.success('Postagem atualizada!');
+    } catch (err) {
+      console.error('Erro ao atualizar postagem:', err);
+      toast.error('Erro ao atualizar postagem.');
+    }
+  }, []);
+
+  /** 🔹 Deletar postagem */
+  const removerPostagem = useCallback(async (id: string) => {
+    try {
+      await deletePostagem(id);
+      setPosts((prev) => prev.filter((p) => p.id !== id));
+      toast.success('Postagem removida.');
+    } catch (err) {
+      console.error('Erro ao deletar postagem:', err);
+      toast.error('Erro ao deletar postagem.');
+    }
+  }, []);
+
+  /** 🔹 Carregar posts automaticamente ao iniciar */
   useEffect(() => {
     carregarPostagens();
   }, [carregarPostagens]);
 
-  // ✍️ Criar nova postagem
-  const criarPostagem = async (novaPostagem: Omit<Postagem, 'id' | 'createdAt' | 'autor'>) => {
-    try {
-      const post = await createPostagem({
-        ...novaPostagem,
-        autor: user?.name || 'Usuário Desconhecido',
-      });
-      setPosts((prev) => [post, ...prev]);
-      return post;
-    } catch (err) {
-      console.error('Erro ao criar postagem:', err);
-      throw err;
-    }
-  };
-
-  // 🔧 Atualizar postagem existente
-  const atualizarPostagem = async (id: string, dados: Partial<Postagem>) => {
-    try {
-      const postAtualizado = await updatePostagem(id, dados);
-      setPosts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, ...postAtualizado } : p))
-      );
-      return postAtualizado;
-    } catch (err) {
-      console.error('Erro ao atualizar postagem:', err);
-      throw err;
-    }
-  };
-
-  // 🗑️ Deletar postagem
-  const removerPostagem = async (id: string) => {
-    try {
-      await deletePostagem(id);
-      setPosts((prev) => prev.filter((p) => p.id !== id));
-    } catch (err) {
-      console.error('Erro ao deletar postagem:', err);
-      throw err;
-    }
-  };
-
-  // 🔐 Permissões — quem pode publicar
-  const canPublish = !!user && ['admin', 'professor', 'aluno', 'aluno-nejusc'].includes(user.role);
+  /** 🔹 Controle de permissão */
+  const canPublish = !!user;
+  const isAdmin = user && ['admin', 'professor'].includes(user.role);
 
   return {
     posts,
+    selectedPost,
     loading,
     error,
     canPublish,
+    isAdmin,
     carregarPostagens,
-    criarPostagem,
+    carregarPostagemPorId,
+    adicionarPostagem,
     atualizarPostagem,
     removerPostagem,
   };

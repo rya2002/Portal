@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LogIn, User, Lock, AlertCircle, UserPlus } from "lucide-react";
-import LogoNejusc from "../assets/LOGONEJUSC-16.png";
+import LogoNejusc from "../assets/Logos/LOGONEJUSC-16.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
