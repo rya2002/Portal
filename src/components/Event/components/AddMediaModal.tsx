@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dialog } from "@headlessui/react";
+import { Dialog } from "../../../../node_modules/@headlessui/react";
 import { AddMediaPayload } from "../types";
 
 interface AddMediaModalProps {

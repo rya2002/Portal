@@ -1,24 +1,18 @@
-import { FileText, BookOpen, Download } from 'lucide-react';
+import { FileText, BookOpen, Download, Trash2 } from 'lucide-react';
 import { Artigo, Revista } from '../../types';
-import { useEffect, useState } from 'react';
-import { getAllRevistas, downloadPdfRevista } from '../../../../services/revistaService';
-import { downloadPdfArtigo } from '../../../../services/artigoService';
+import { useAuth } from '../../../../contexts/AuthContext';
+import { downloadPdfRevista, deleteRevista } from '../../../../services/revistaService';
+import { downloadPdfArtigo, deleteArtigo } from '../../../../services/artigoService';
 
 interface ItemCardProps {
   item: Artigo | Revista;
   tipo: 'artigo' | 'revista';
+  onDelete?: (id: string) => void;
 }
 
-export default function ItemCard({ item, tipo }: ItemCardProps) {
-  const [revistas, setRevistas] = useState<Revista[]>([]);
-
-  useEffect(() => {
-    async function getRevistas() {
-      const response = await getAllRevistas();
-      setRevistas(response);
-    }
-    getRevistas();
-  }, []);
+export default function ItemCard({ item, tipo, onDelete }: ItemCardProps) {
+  const { user } = useAuth();
+  const canDelete = user && ['admin', 'professor', 'alunoNEJUSC'].includes(user.role);
 
   const handleDownload = async (it: Artigo | Revista) => {
     try {
@@ -29,6 +23,29 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
       }
     } catch {
       alert('Erro ao baixar PDF. Verifique se o arquivo está disponível.');
+    }
+  };
+
+  const handleDelete = async (it: Artigo | Revista) => {
+    if (
+      !window.confirm(
+        `Tem certeza que deseja excluir "${it.titulo}"? Essa ação não pode ser desfeita.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      if (tipo === 'revista') {
+        await deleteRevista(it.id);
+      } else {
+        await deleteArtigo(it.id);
+      }
+
+      alert(`${tipo === 'revista' ? 'Revista' : 'Artigo'} excluído com sucesso.`);
+      if (onDelete) onDelete(it.id);
+    } catch {
+      alert('Erro ao excluir o item. Verifique sua permissão ou tente novamente.');
     }
   };
 
@@ -64,13 +81,25 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
             Revista publicada em {revista.publicacao}
           </div>
 
-          <button
-            onClick={() => handleDownload(revista)}
-            className="mt-3 inline-flex items-center px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Baixar PDF
-          </button>
+          <div className="flex justify-between mt-3">
+            <button
+              onClick={() => handleDownload(revista)}
+              className="inline-flex items-center px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Baixar PDF
+            </button>
+
+            {canDelete && (
+              <button
+                onClick={() => handleDelete(revista)}
+                className="inline-flex items-center px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Excluir
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -97,13 +126,25 @@ export default function ItemCard({ item, tipo }: ItemCardProps) {
           Artigo publicado em {artigo.publicacao}
         </div>
 
-        <button
-          onClick={() => handleDownload(artigo)}
-          className="mt-3 inline-flex items-center px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          <Download className="h-4 w-4 mr-2" />
-          Baixar PDF
-        </button>
+        <div className="flex justify-between mt-3">
+          <button
+            onClick={() => handleDownload(artigo)}
+            className="inline-flex items-center px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Baixar PDF
+          </button>
+
+          {canDelete && (
+            <button
+              onClick={() => handleDelete(artigo)}
+              className="inline-flex items-center px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Excluir
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

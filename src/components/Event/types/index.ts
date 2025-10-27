@@ -24,11 +24,11 @@ export interface AddMediaPayload {
 }
 
 // Tipagem principal do evento (com base no backend)
-export interface Evento {
+export interface Event {
   id: string;
   nome: string;
   descricao: string;
-  dataInicio: string;
+  data: string;
   local: string;
   area: string;
   palestrantes: Usuario[];

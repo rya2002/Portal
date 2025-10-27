@@ -5,20 +5,20 @@ import EventCarousel from "../components/EventCarousel";
 import AddEventModal from "../components/AddEventModal";
 import AddMediaModal from "../components/AddMediaModal";
 
-import { Evento, Midia, AddMediaPayload, CreateEventData } from "../../Eventos/types";
-import { useAuth } from "../../../../../contexts/AuthContext";
+import { Event, Midia, AddMediaPayload, CreateEventData } from "../types/index";
+import { useAuth } from "../../../contexts/AuthContext";
 
 import {
   getAllEventosRequest,
   createEventoRequest,
   deleteEventoRequest,
-} from "../../../../../services/eventoService";
+} from "../../../services/eventoService";
 
 const EventView = () => {
   const { user } = useAuth();
 
-  const [eventos, setEventos] = useState<Evento[]>([]);
-  const [filteredEventos, setFilteredEventos] = useState<Evento[]>([]);
+  const [eventos, setEventos] = useState<Event[]>([]);
+  const [filteredEventos, setFilteredEventos] = useState<Event[]>([]);
   const [media, setMedia] = useState<Midia[]>([]);
   const [activeCategory, setActiveCategory] = useState("em-andamento");
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);

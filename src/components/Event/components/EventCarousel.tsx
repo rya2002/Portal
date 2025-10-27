@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
-import { Evento } from '../types';
+import { Event } from '../types';
 import EventCard from './EventCard';
 
 interface EventCarouselProps {
-  eventos: Evento[];
+  eventos: Event[];
   activeCategory: string;
   onCategoryChange: React.Dispatch<React.SetStateAction<string>>;
   onRemove: (id: string) => Promise<void>;

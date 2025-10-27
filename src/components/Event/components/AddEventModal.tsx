@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Plus, Minus } from 'lucide-react';
 import { Usuario } from '../types';
-import { CreateEventData } from '../../Eventos/types';
+import { CreateEventData } from '../types';
 
 interface AddEventModalProps {
   isOpen: boolean;

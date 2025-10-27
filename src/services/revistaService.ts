@@ -1,59 +1,72 @@
 // src/services/revistaService.ts
-import api from './api';
+import api from "./api";
 
-/** Buscar todas as revistas */
+// 📘 Obter todas as revistas
 export async function getAllRevistas() {
-  const res = await api.get('/revista');
+  const res = await api.get("/revista");
   return res.data;
 }
 
-/** Buscar revista por ID */
+// 📘 Obter revista por ID
 export async function getRevistaById(id: string) {
   const res = await api.get(`/revista/${id}`);
   return res.data;
 }
 
-/** Criar nova revista */
+// ✏️ Criar nova revista
 export async function createRevista(data: any) {
-  const res = await api.post('/revista', data);
+  const res = await api.post("/revista", data);
   return res.data;
 }
 
-/** Atualizar revista existente */
+// ✏️ Atualizar revista
 export async function updateRevista(id: string, data: any) {
   const res = await api.put(`/revista/${id}`, data);
   return res.data;
 }
 
-/** Deletar revista */
+// 🗑️ Excluir revista
 export async function deleteRevista(id: string) {
   const res = await api.delete(`/revista/${id}`);
   return res.data;
 }
 
-/** 🆕 Upload de PDF para a revista */
-export async function uploadPdfRevista(id: string, file: File) {
-  const formData = new FormData();
-  formData.append('ArquivoPdf', file);
-  formData.append('Id', id);
-
-  const res = await api.put(`/revista/${id}/upload`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+// 📥 Download do PDF
+export async function downloadPdfRevista(id: string) {
+  const res = await api.get(`/revista/${id}/download`, {
+    responseType: "blob", // importante para baixar arquivos binários
   });
 
+  // Cria o link temporário para baixar o arquivo
+  const url = window.URL.createObjectURL(new Blob([res.data]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `revista-${id}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  return true;
+}
+
+// 📤 Upload de PDF
+export async function uploadPdfRevista(id: string, file: File) {
+  const formData = new FormData();
+  formData.append("ArquivoPdf", file);
+
+  const res = await api.put(`/revista/${id}/upload`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return res.data;
 }
 
-/** 🆕 Download do PDF da revista */
-export async function downloadPdfRevista(id: string) {
-  const res = await api.get(`/revista/${id}/download`, { responseType: 'blob' });
-  const blob = new Blob([res.data], { type: 'application/pdf' });
-  const url = window.URL.createObjectURL(blob);
+// 🖼️ Upload de imagem (capa)
+export async function uploadImagemRevista(id: string, file: File) {
+  const formData = new FormData();
+  formData.append("Capa", file);
 
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `revista-${id}.pdf`;
-  link.click();
-
-  window.URL.revokeObjectURL(url);
+  const res = await api.put(`/revista/${id}/imagem`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
 }

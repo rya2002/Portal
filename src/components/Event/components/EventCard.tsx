@@ -23,7 +23,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
       {/* Imagem do Evento */}
       <div className="h-48 bg-gradient-to-br from-blue-500 to-blue-600 relative overflow-hidden">
         {event.imagem ? (
-          <img src={event.imagem} alt={event.titulo} className="w-full h-full object-cover" />
+          <img src={event.imagem} alt={event.nome} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <div className="text-white text-center">
@@ -36,7 +36,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
         {/* Badge de Categoria */}
         <div className="absolute top-3 left-3">
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white">
-            {event.earea}
+            {event.area}
           </span>
         </div>
       </div>
@@ -44,7 +44,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
       <div className="p-5">
         {/* Título */}
         <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
-          {event.titulo}
+          {event.nome}
         </h3>
 
         {/* Descrição */}
