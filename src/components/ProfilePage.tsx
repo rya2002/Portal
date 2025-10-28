@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import {
   logoutRequest,
   getAllUsersRequest,
-  updateUserStatusRequest, 
+  updateUserStatusRequest,
 } from "../services/userService";
 
 function ProfilePage() {
@@ -28,7 +28,6 @@ function ProfilePage() {
       }
     }
 
-    // Apenas admin e professor veem lista de usuários
     if (["admin", "professor"].includes(user.role)) {
       carregarUsuarios();
     }
@@ -47,24 +46,23 @@ function ProfilePage() {
   };
 
   const handlePromover = async (userId: string, novoRole: string) => {
-  try {
-    await updateUserStatusRequest(userId, novoRole); // ✅ chamada correta do backend
-    setUsuarios((prev) =>
-      prev.map((u) =>
-        u.id === userId ? { ...u, tipoUsuario: novoRole } : u
-      )
-    );
-    alert(
-      novoRole === "alunoNEJUSC"
-        ? "Usuário promovido para Aluno NEJUSC com sucesso!"
-        : "Usuário revertido para Aluno comum com sucesso!"
-    );
-  } catch (error) {
-    console.error("Erro ao atualizar tipo de usuário:", error);
-    alert("Erro ao alterar tipo de usuário. Tente novamente.");
-  }
-};
-
+    try {
+      await updateUserStatusRequest(userId, novoRole);
+      setUsuarios((prev) =>
+        prev.map((u) =>
+          u.id === userId ? { ...u, tipoUsuario: novoRole } : u
+        )
+      );
+      alert(
+        novoRole === "alunoNEJUSC"
+          ? "Usuário promovido para Aluno NEJUSC com sucesso!"
+          : "Usuário revertido para Aluno comum com sucesso!"
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar tipo de usuário:", error);
+      alert("Erro ao alterar tipo de usuário. Tente novamente.");
+    }
+  };
 
   if (!user) {
     return (
@@ -90,6 +88,14 @@ function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50 relative">
       <div className="max-w-6xl mx-auto py-10 px-6">
+        {/* 🔹 Botão de Voltar para Home */}
+        <button
+          onClick={() => navigate("/")}
+          className="mb-6 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+        >
+          ← Voltar para Home
+        </button>
+
         {/* Cabeçalho do Perfil */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8 flex items-center space-x-6">
           <img

@@ -1,23 +1,23 @@
-import { Evento, CreateEventData, UpdateEventData } from "../components/Event/teste/Eventos/types";
+import { Event, CreateEventData, UpdateEventData } from "../components/Event/types";
 
 const API_URL = "https://localhost:7032/api/evento"; // 🔹 Ajuste conforme o backend
 
 // 🔹 GET - Buscar todos os eventos
-export async function getAllEventosRequest(): Promise<Evento[]> {
+export async function getAllEventosRequest(): Promise<Event[]> {
   const res = await fetch(API_URL);
   if (!res.ok) throw new Error("Erro ao buscar eventos");
   return res.json();
 }
 
 // 🔹 GET - Buscar evento por ID
-export async function getEventoByIdRequest(id: string): Promise<Evento> {
+export async function getEventoByIdRequest(id: string): Promise<Event> {
   const res = await fetch(`${API_URL}/${id}`);
   if (!res.ok) throw new Error("Erro ao buscar evento por ID");
   return res.json();
 }
 
 // 🔹 POST - Criar novo evento
-export async function createEventoRequest(eventData: CreateEventData): Promise<Evento> {
+export async function createEventoRequest(eventData: CreateEventData): Promise<Event> {
   const res = await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -28,7 +28,7 @@ export async function createEventoRequest(eventData: CreateEventData): Promise<E
 }
 
 // 🔹 PUT - Atualizar evento existente
-export async function updateEventoRequest(id: string, eventData: UpdateEventData): Promise<Evento> {
+export async function updateEventoRequest(id: string, eventData: UpdateEventData): Promise<Event> {
   const res = await fetch(`${API_URL}/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },

@@ -17,10 +17,14 @@ export default function Estatisticas(props: EstatisticasProps) {
   useEffect(() => {
     async function carregarEstatisticas() {
       try {
-        const [artigos, revistas] = await Promise.all([
+        const [artigosRes, revistasRes] = await Promise.all([
           getAllArtigos(),
           getAllRevistas(),
         ]);
+
+        // ✅ Garante que ambos são arrays
+        const artigos = Array.isArray(artigosRes) ? artigosRes : artigosRes?.data ?? [];
+        const revistas = Array.isArray(revistasRes) ? revistasRes : revistasRes?.data ?? [];
 
         setTotalArtigos(artigos.length);
         setTotalRevistas(revistas.length);
@@ -46,27 +50,21 @@ export default function Estatisticas(props: EstatisticasProps) {
   const cards = [
     {
       titulo: 'Artigos Publicados',
-      valor: totalArtigos,
+      valor: totalArtigos || 0,
       icon: FileText,
       cor: 'blue',
     },
     {
       titulo: 'Revistas Publicadas',
-      valor: totalRevistas,
+      valor: totalRevistas || 0,
       icon: BookOpen,
       cor: 'green',
     },
     {
       titulo: 'Total de Publicações',
-      valor: totalArtigos + totalRevistas,
+      valor: (totalArtigos || 0) + (totalRevistas || 0),
       icon: TrendingUp,
       cor: 'purple',
-    },
-    {
-      titulo: 'Semestres Registrados',
-      valor: totalSemestres,
-      icon: TrendingUp,
-      cor: 'orange',
     },
   ];
 
@@ -94,7 +92,10 @@ export default function Estatisticas(props: EstatisticasProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">{card.titulo}</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{card.valor}</p>
+                {/* ✅ Evita exibir NaN */}
+                <p className="text-2xl font-bold text-gray-900 mt-1">
+                  {isNaN(card.valor) ? 0 : card.valor}
+                </p>
               </div>
               <div className={`p-3 rounded-lg ${coreClasses}`}>
                 <Icon className="h-6 w-6" />

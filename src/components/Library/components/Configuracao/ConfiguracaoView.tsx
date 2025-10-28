@@ -84,7 +84,6 @@ function PublicacoesSection() {
   const [publicacao, setPublicacao] = useState('');
   const [descricao, setDescricao] = useState('');
   const [palavrasChave, setPalavrasChave] = useState('');
-  const [edicao, setEdicao] = useState('');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [capaFile, setCapaFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -104,7 +103,6 @@ function PublicacoesSection() {
     formData.append('descricao', descricao);
     formData.append('palavrasChave', palavrasChave);
     formData.append('tipo', tipoPublicacao);
-    if (tipoPublicacao === 'revista') formData.append('edicao', edicao);
     formData.append('pdf', pdfFile);
     if (tipoPublicacao === 'revista' && capaFile) formData.append('capa', capaFile);
 
@@ -122,7 +120,6 @@ function PublicacoesSection() {
       setPublicacao('');
       setDescricao('');
       setPalavrasChave('');
-      setEdicao('');
       setPdfFile(null);
       setCapaFile(null);
     } catch (err) {
@@ -161,7 +158,6 @@ function PublicacoesSection() {
         <input value={autores} onChange={e => setAutores(e.target.value)} placeholder="Autores (separe por vírgula) *" className="w-full p-3 border rounded-lg" />
         <input value={area} onChange={e => setArea(e.target.value)} placeholder="Área *" className="w-full p-3 border rounded-lg" />
         <input type="date" value={publicacao} onChange={e => setPublicacao(e.target.value)} className="w-full p-3 border rounded-lg" />
-        {tipoPublicacao === 'revista' && <input value={edicao} onChange={e => setEdicao(e.target.value)} placeholder="Edição (opcional)" className="w-full p-3 border rounded-lg" />}
         <textarea value={descricao} onChange={e => setDescricao(e.target.value)} placeholder="Resumo *" rows={4} className="w-full p-3 border rounded-lg" />
         <input value={palavrasChave} onChange={e => setPalavrasChave(e.target.value)} placeholder="Palavras-chave (separe por vírgula) *" className="w-full p-3 border rounded-lg" />
 
@@ -179,7 +175,7 @@ function PublicacoesSection() {
 
         <div className="flex justify-end gap-2 pt-4">
           <button type="button" onClick={() => {
-            setTitulo(''); setAutores(''); setArea(''); setPublicacao(''); setDescricao(''); setPalavrasChave(''); setEdicao(''); setPdfFile(null); setCapaFile(null);
+            setTitulo(''); setAutores(''); setArea(''); setPublicacao(''); setDescricao(''); setPalavrasChave(''); setPdfFile(null); setCapaFile(null);
           }} className="px-4 py-2 border rounded">Cancelar</button>
 
           <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
