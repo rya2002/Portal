@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import Footer from './Footer';
 import capaRevista from '../assets/capas/EntreARampaEOAbismo.png';
-import revistaPDF from '../assets/revistas/Entre a rempa e o abismo-1.pdf';
+import revistaPDF from '../assets/revistas/Entre a rampa e o abismo.pdf';
 
 export default function HomePage() {
   const scrollTo = useCallback((id: string) => {

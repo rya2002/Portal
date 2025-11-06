@@ -10,11 +10,12 @@ import type {
 import { getAllArtigos } from '../../../services/artigoService';
 import { getAllRevistas } from '../../../services/revistaService';
 
-/** tenta ler publicacao ou date de forma segura */
+/** Lê a data de publicação de forma segura */
 function getPublicationDate(item: any): string | undefined {
   return item?.publicacao ?? item?.date ?? undefined;
 }
 
+/** Converte data em rótulo de semestre */
 function getSemestreLabel(dateString?: string): string {
   if (!dateString) return 'Semestre Desconhecido';
   const d = new Date(dateString);
@@ -29,10 +30,25 @@ function getSemestreLabel(dateString?: string): string {
   return `${semestreNum} Semestre ${year}`;
 }
 
+/** Normaliza keywords */
+function normalizeKeywords(k: any): { id: number; titulo: string }[] {
+  if (!k) return [];
+  const arr = Array.isArray(k) ? k : [];
+  return arr.map((x: any) => {
+    if (typeof x === 'string') return { id: 0, titulo: x };
+    return { id: Number(x?.id) || 0, titulo: String(x?.titulo ?? '') };
+  });
+}
+
+/** Lê título da keyword */
+function getKeywordTitle(k: any): string {
+  return typeof k === 'string' ? k : String(k?.titulo ?? '');
+}
+
 export function useBiblioteca() {
-  // 🔹 Estados principais
-  const [artigos, setArtigos] = useState<Artigo[]>([]);
-  const [revistas, setRevistas] = useState<Revista[]>([]);
+  // Estados principais + agora setters expostos
+  const [artigos, setArtigos] = useState<(Artigo & { keywordsNorm?: { id: number; titulo: string }[] })[]>([]);
+  const [revistas, setRevistas] = useState<(Revista & { keywordsNorm?: { id: number; titulo: string }[] })[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const [filtros, setFiltros] = useState<FilterState>({
@@ -48,17 +64,30 @@ export function useBiblioteca() {
     direction: 'desc'
   });
 
-  // 🔹 Carrega os dados do backend
+  /** Carrega do backend */
   useEffect(() => {
     async function carregarDados() {
       try {
         setLoading(true);
+
         const [artigosRes, revistasRes] = await Promise.all([
           getAllArtigos(),
           getAllRevistas()
         ]);
-        setArtigos(artigosRes || []);
-        setRevistas(revistasRes || []);
+
+        setArtigos(
+          (artigosRes || []).map((a: any) => ({
+            ...a,
+            keywordsNorm: normalizeKeywords(a.keywords)
+          }))
+        );
+
+        setRevistas(
+          (revistasRes || []).map((r: any) => ({
+            ...r,
+            keywordsNorm: normalizeKeywords(r.keywords)
+          }))
+        );
       } catch (error) {
         console.error('Erro ao carregar dados da biblioteca:', error);
       } finally {
@@ -69,54 +98,59 @@ export function useBiblioteca() {
     carregarDados();
   }, []);
 
-  // 🔎 Filtros e organização por semestre
+  /** Filtros + agrupamento por semestre */
   const dados: SemestreData[] = useMemo(() => {
     const map = new Map<string, SemestreData>();
 
     const pushArticle = (a: Artigo) => {
-      const pub = getPublicationDate(a) ?? '';
-      const key = getSemestreLabel(pub);
+      const key = getSemestreLabel(getPublicationDate(a));
       if (!map.has(key)) map.set(key, { semestre: key, artigos: [], revistas: [] });
       map.get(key)!.artigos.push(a);
     };
 
     const pushRevista = (r: Revista) => {
-      const pub = getPublicationDate(r) ?? '';
-      const key = getSemestreLabel(pub);
+      const key = getSemestreLabel(getPublicationDate(r));
       if (!map.has(key)) map.set(key, { semestre: key, artigos: [], revistas: [] });
       map.get(key)!.revistas.push(r);
     };
 
-    const q = filtros.busca?.trim()?.toLowerCase() || '';
-    const matchesText = (txt?: string) => !q || (txt || '').toLowerCase().includes(q);
+    const q = filtros.busca.trim().toLowerCase();
+    const matchesText = (txt?: string) => !q || (txt ?? '').toLowerCase().includes(q);
 
-    // 🔹 Filtro de revistas
     if (filtros.tipo === 'revistas' || filtros.tipo === 'todos') {
-      revistas.forEach(r => {
+      revistas.forEach((r) => {
         if (filtros.semestre && getSemestreLabel(getPublicationDate(r)) !== filtros.semestre) return;
         if (filtros.area && r.area?.toLowerCase() !== filtros.area.toLowerCase()) return;
-        if (filtros.autor && !(r.autores || []).some(a => a.toLowerCase().includes(filtros.autor.toLowerCase()))) return;
+        if (filtros.autor && !(r.autores ?? []).some(a => a.toLowerCase().includes(filtros.autor.toLowerCase()))) return;
+
         if (q) {
-          if (!(matchesText(r.titulo) || matchesText(r.descricao) || matchesText(r.area) || (r.autores || []).some(a => a.toLowerCase().includes(q)))) return;
+          const kws = r.keywordsNorm ?? normalizeKeywords((r as any).keywords);
+          const keywordMatch = (kws ?? []).some(k => getKeywordTitle(k).toLowerCase().includes(q));
+
+          if (!(matchesText(r.titulo) || matchesText(r.descricao) || matchesText(r.area) || keywordMatch)) return;
         }
+
         pushRevista(r);
       });
     }
 
-    // 🔹 Filtro de artigos
     if (filtros.tipo === 'artigos' || filtros.tipo === 'todos') {
-      artigos.forEach(a => {
+      artigos.forEach((a) => {
         if (filtros.semestre && getSemestreLabel(getPublicationDate(a)) !== filtros.semestre) return;
         if (filtros.area && a.area?.toLowerCase() !== filtros.area.toLowerCase()) return;
-        if (filtros.autor && !(a.autores || []).some(ar => ar.toLowerCase().includes(filtros.autor.toLowerCase()))) return;
+        if (filtros.autor && !(a.autores ?? []).some(ar => ar.toLowerCase().includes(filtros.autor.toLowerCase()))) return;
+
         if (q) {
-          if (!(matchesText(a.titulo) || matchesText(a.descricao) || matchesText(a.area) || (a.autores || []).some(ar => ar.toLowerCase().includes(q)))) return;
+          const kws = a.keywordsNorm ?? normalizeKeywords((a as any).keywords);
+          const keywordMatch = (kws ?? []).some(k => getKeywordTitle(k).toLowerCase().includes(q));
+
+          if (!(matchesText(a.titulo) || matchesText(a.descricao) || matchesText(a.area) || keywordMatch)) return;
         }
+
         pushArticle(a);
       });
     }
 
-    // 🔹 Ordena os semestres
     const arr = Array.from(map.values());
     arr.sort((a, b) => {
       const yearA = Number(a.semestre.match(/\d{4}/)?.[0] || 0);
@@ -128,16 +162,12 @@ export function useBiblioteca() {
     return arr;
   }, [artigos, revistas, filtros]);
 
-  // 📊 Estatísticas
+  /** Estatísticas */
   const estatisticas: Estatisticas = useMemo(() => ({
     totalArtigos: artigos.length,
     totalRevistas: revistas.length,
     totalSemestres: dados.length,
   }), [artigos.length, revistas.length, dados.length]);
-
-  // ➕ Adicionar novos itens
-  const adicionarArtigo = (novo: Artigo) => setArtigos(prev => [...prev, novo]);
-  const adicionarRevista = (nova: Revista) => setRevistas(prev => [...prev, nova]);
 
   return {
     dados,
@@ -148,8 +178,11 @@ export function useBiblioteca() {
     estatisticas,
     artigos,
     revistas,
-    adicionarArtigo,
-    adicionarRevista,
+
+    // ✅ Expostos agora:
+    setArtigos,
+    setRevistas,
+
     loading
   };
 }

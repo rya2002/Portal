@@ -3,7 +3,7 @@ export interface Artigo {
   titulo: string;
   descricao: string;
   publicacao: string;
-  arquivopdf: string;
+  arquivopdf?: string;
   autores: string[];
   area: string;
   keywords: string[];
@@ -15,7 +15,7 @@ export interface Revista {
   descricao: string;
   capaUrl?: string;
   publicacao: string;
-  arquivopdf: string;
+  arquivopdf?: string;
   autores: string[];
   area: string;
   keywords: string[];

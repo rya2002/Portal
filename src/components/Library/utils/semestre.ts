@@ -24,16 +24,36 @@ export function ordenarSemestres(semestres: string[]): string[] {
   });
 }
 
-export function extrairAreas(artigos: any[], revistas: any[]): string[] {
-  const areas = new Set<string>();
-  [...artigos, ...revistas].forEach(item => areas.add(item.area));
-  return Array.from(areas).sort();
+export function extrairAreas(artigos: any[], revistas: any[]): number[] {
+  const areas = new Set<number>();
+
+  [...artigos, ...revistas].forEach(item => {
+    const raw = item.area;
+    const parsed =
+      typeof raw === "number" ? raw :
+      typeof raw === "string" ? Number(raw) :
+      NaN;
+
+    if (!isNaN(parsed)) areas.add(parsed);
+  });
+
+  return Array.from(areas).sort((a, b) => a - b);
 }
 
+/**
+ * ✅ Mantém autores como string[], com segurança
+ * Adiciona checagens para evitar erro se autores vier null/undefined
+ */
 export function extrairAutores(artigos: any[], revistas: any[]): string[] {
   const autores = new Set<string>();
-  [...artigos, ...revistas].forEach(item => 
-    item.autores.forEach((autor: string) => autores.add(autor))
-  );
-  return Array.from(autores).sort();
+
+  [...artigos, ...revistas].forEach(item => {
+    const lista = item.autores ?? [];
+    lista.forEach((autor: string) => {
+      const nome = autor?.trim();
+      if (nome) autores.add(nome);
+    });
+  });
+
+  return Array.from(autores).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 }

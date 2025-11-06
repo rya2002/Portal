@@ -1,18 +1,31 @@
 import React from 'react';
 import ItemCard from './ItemCard';
-import type { Artigo, Revista } from '../../types/index';
+import type { Artigo, Revista } from '../../types';
 
 interface SemestreSectionProps {
   semestre: string;
   artigos: Artigo[];
   revistas: Revista[];
+  onDeleteArtigo?: (id: string) => void;
+  onDeleteRevista?: (id: string) => void;
 }
 
-const SemestreSection: React.FC<SemestreSectionProps> = ({ semestre, artigos, revistas }) => {
+const SemestreSection: React.FC<SemestreSectionProps> = ({
+  semestre,
+  artigos,
+  revistas,
+  onDeleteArtigo,
+  onDeleteRevista
+}) => {
   const temArtigos = artigos.length > 0;
   const temRevistas = revistas.length > 0;
 
   if (!temArtigos && !temRevistas) return null;
+
+  const gerarKey = (prefix: string, id?: string, index?: number) => {
+    if (id && id !== '00000000-0000-0000-0000-000000000000') return `${prefix}-${id}`;
+    return `${prefix}-${index}-${Math.random()}`;
+  };
 
   return (
     <section className="mb-8">
@@ -21,12 +34,22 @@ const SemestreSection: React.FC<SemestreSectionProps> = ({ semestre, artigos, re
       </h2>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {revistas.map(r => (
-          <ItemCard key={r.id} tipo="revista" item={r} />
+        {revistas.map((r, index) => (
+          <ItemCard
+            key={gerarKey('revista', r.id, index)}
+            tipo="revista"
+            item={r}
+            onDelete={onDeleteRevista}
+          />
         ))}
 
-        {artigos.map(a => (
-          <ItemCard key={a.id} tipo="artigo" item={a} />
+        {artigos.map((a, index) => (
+          <ItemCard
+            key={gerarKey('artigo', a.id, index)}
+            tipo="artigo"
+            item={a}
+            onDelete={onDeleteArtigo}
+          />
         ))}
       </div>
     </section>
