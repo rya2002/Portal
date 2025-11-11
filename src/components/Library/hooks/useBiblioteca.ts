@@ -75,15 +75,17 @@ export function useBiblioteca() {
           getAllRevistas()
         ]);
 
+				console.log('Revistas carregadas:', revistasRes);
+
         setArtigos(
-          (artigosRes || []).map((a: any) => ({
+          (artigosRes.data || []).map((a: any) => ({
             ...a,
             keywordsNorm: normalizeKeywords(a.keywords)
           }))
         );
 
         setRevistas(
-          (revistasRes || []).map((r: any) => ({
+          (revistasRes.data || []).map((r: any) => ({
             ...r,
             keywordsNorm: normalizeKeywords(r.keywords)
           }))

@@ -39,14 +39,16 @@ export default function PublicPage() {
   });
 
   const [formRevista, setFormRevista] = useState({
+		id: "",
     titulo: "",
     descricao: "",
-    data: "",
-    autores: [] as string[],
+    publicacao: "",
+    autores: [],
     area: "",
-    keywords: [] as string[],
-    capa: null as File | null,
-    arquivo: null as File | null,
+    keywords: [],
+    capaUrl: null,
+    pdfUrl: null,
+		isDeleted: false,
   });
 
   const [novaKeyword, setNovaKeyword] = useState("");
@@ -96,84 +98,107 @@ export default function PublicPage() {
     setFn(list.filter((k) => k !== kw));
   };
 
-  const handleAddArtigo = async () => {
-    if (!formArtigo.titulo || !formArtigo.descricao || !formArtigo.data || !formArtigo.area) {
-      alert("Preencha os campos obrigatórios!");
-      return;
+		// FIXME: Refatorar, está com erro. Acredito que sej a por conta do form.append. Olhar o formato do handleAddRevista
+ const handleAddArtigo = async () => {
+  const { titulo, descricao, data, area, keywords, arquivo } = formArtigo;
+
+  if (!titulo || !descricao || !data || !area) {
+    alert("Preencha os campos obrigatórios!");
+    return;
+  }
+
+  try {
+    // 🔹 Garante que as keywords existem e pega os IDs
+    const kws = await ensureKeywordsByTitles(keywords);
+    const keywordsIds = kws.map((k) => k.id);
+
+    console.log("🧠 Keywords IDs:", keywordsIds);
+
+    // 🔹 Monta o FormData conforme o modelo do Swagger
+    const formData = new FormData();
+    formData.append("Titulo", titulo);
+    formData.append("Descricao", descricao);
+    formData.append("DataPublicacao", new Date(data).toISOString());
+    formData.append("area", AREA_MAP[area]);
+
+    keywordsIds.forEach((id) => {
+      formData.append("KeywordsIds", id);
+    });
+
+    // 🔹 Adiciona o PDF (binário)
+    if (arquivo instanceof File) {
+      formData.append("Arquivopdf", arquivo);
+    } else if (typeof arquivo === "string") {
+      const blob = await fetch(arquivo).then((r) => r.blob());
+      formData.append("Arquivopdf", blob, "artigo.pdf");
     }
 
-    try {
-      const kws = await ensureKeywordsByTitles(formArtigo.keywords);
-      const keywordsIds = kws.map((k) => k.id);
+    // 🔹 Envia o formulário
+    const response = await createArtigo(formData);
 
-      const payload = {
-        titulo: formArtigo.titulo,
-        descricao: formArtigo.descricao,
-        publicacao: formArtigo.data,
-        area: AREA_MAP[formArtigo.area],
-        autores: formArtigo.autores,
-        keywordsIds,
-      };
+    // const artigoId = response?.data?.id ?? response?.id ?? response ?? "";
+    // if (!artigoId) {
+    //   alert("⚠️ Erro ao criar artigo: ID não retornado.");
+    //   return;
+    // }
 
-      const created = await createArtigo(payload);
-      const artigoId: string =
-        created?.data?.id ?? created?.id ?? created ?? "";
+    alert("✅ Artigo publicado com sucesso!");
+    navigate("/biblioteca");
+  } catch (error) {
+    console.error("❌ Erro ao publicar artigo:", error);
+    alert("Erro ao publicar artigo. Verifique os dados e tente novamente.");
+  }
+};
 
-      if (!artigoId) {
-        alert("Erro ao criar artigo: ID não retornado.");
-        return;
-      }
+	// TODO: Funcional, mas é possivel melhorar a função 
+	const handleAddRevista = async () => {
+		// TODO: Enviar autores
+		const { titulo, descricao, publicacao, area, autores, keywords, pdfUrl, capaUrl } = formRevista;
 
-      if (formArtigo.arquivo) {
-        await uploadPdfArtigo(artigoId, formArtigo.arquivo);
-      }
+		if (!titulo || !descricao || !publicacao || !area || !capaUrl || !pdfUrl) {
+			alert("Preencha todos os campos obrigatórios!");
+			return;
+		}
 
-      alert("✅ Artigo publicado com sucesso!");
-      navigate("/biblioteca");
-    } catch {
-      alert("❌ Erro ao publicar artigo. Tente novamente.");
-    }
-  };
+		try {
 
-  const handleAddRevista = async () => {
-    if (!formRevista.titulo || !formRevista.descricao || !formRevista.data || !formRevista.area) {
-      alert("Preencha os campos obrigatórios!");
-      return;
-    }
+			// 🔹 Cria o formData conforme o modelo do Swagger
+			const formData = new FormData();
+			formData.append("titulo", titulo);
+			formData.append("descricao", descricao);
+			formData.append("publicacao", new Date(publicacao).toISOString());
+			formData.append("area", AREA_MAP[area]);
 
-    try {
-      const kws = await ensureKeywordsByTitles(formRevista.keywords);
-      const keywordsIds = kws.map((k) => k.id);
+			keywords.forEach(keyword => {
+				console.log("🧠 Adicionando Keyword ID:", keyword);
+				formData.append("KeywordsIds", keyword);
+			});
 
-      const form = new FormData();
-      form.append("titulo", formRevista.titulo);
-      form.append("descricao", formRevista.descricao);
-      form.append("publicacao", formRevista.data);
-      form.append("area", String(AREA_MAP[formRevista.area]));
+			// 🔹 Adiciona arquivos
+			if (capaUrl instanceof File) {
+				formData.append("Capa", capaUrl);
+			} else if (typeof capaUrl === "string") {
+				const blob = await fetch(capaUrl).then(res => res.blob());
+				formData.append("Capa", blob, "capa.jpg");
+			}
 
-      formRevista.autores.forEach((a, i) => form.append(`Autores[${i}]`, a));
-      keywordsIds.forEach((id, i) => form.append(`KeywordsIds[${i}]`, String(id)));
+			if (pdfUrl instanceof File) {
+				formData.append("Arquivopdf", pdfUrl);
+			} else if (typeof pdfUrl === "string") {
+				const blob = await fetch(pdfUrl).then(res => res.blob());
+				formData.append("Arquivopdf", blob, "revista.pdf");
+			}
 
-      if (formRevista.capa) form.append("Capa", formRevista.capa);
-      if (formRevista.arquivo) form.append("ArquivoPdf", formRevista.arquivo);
+			// 🔹 Envia para o backend
+			const response = await createRevista(formData);
 
-      const newId: string = await createRevista(form);
-
-      if (!newId) {
-        alert("Erro ao criar revista: ID não retornado.");
-        return;
-      }
-
-      if (formRevista.arquivo) {
-        await uploadPdfRevista(newId, formRevista.arquivo);
-      }
-
-      alert("✅ Revista publicada com sucesso!");
-      navigate("/biblioteca");
-    } catch {
-      alert("❌ Erro ao publicar revista.");
-    }
-  };
+			alert("✅ Revista publicada com sucesso!");
+			navigate("/biblioteca");
+		} catch (error) {
+			console.error("❌ Erro ao publicar revista:", error);
+			alert("Erro ao publicar revista. Verifique os dados e tente novamente.");
+		}
+	};
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6 bg-white rounded-lg shadow">
@@ -319,15 +344,15 @@ export default function PublicPage() {
               type="file"
               accept="image/*"
               className="w-full border border-gray-300 rounded p-2 cursor-pointer bg-gray-50 hover:bg-gray-100"
-              onChange={(e) => setFormRevista({ ...formRevista, capa: e.target.files?.[0] || null })}
+              onChange={(e) => setFormRevista({ ...formRevista, capaUrl: e.target.files?.[0] || null })}
             />
           </div>
 
           <input
             type="date"
             className="w-full border p-2 rounded"
-            value={formRevista.data}
-            onChange={(e) => setFormRevista({ ...formRevista, data: e.target.value })}
+            value={formRevista.publicacao}
+            onChange={(e) => setFormRevista({ ...formRevista, publicacao: e.target.value })}
           />
 
           <select
@@ -406,7 +431,7 @@ export default function PublicPage() {
           <input
             type="file"
             accept="application/pdf"
-            onChange={(e) => setFormRevista({ ...formRevista, arquivo: e.target.files?.[0] || null })}
+            onChange={(e) => setFormRevista({ ...formRevista, pdfUrl: e.target.files?.[0] || null })}
           />
 
           <button onClick={handleAddRevista} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">

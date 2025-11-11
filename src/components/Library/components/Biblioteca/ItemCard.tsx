@@ -41,8 +41,10 @@ export default function ItemCard({ item, tipo, onDelete }: ItemCardProps) {
     normalizeKeywords((item as any).keywords);
 
   const handleDownload = async (it: Artigo | Revista) => {
+		console.log('Downloading item:', it);
     try {
-      if (tipo === 'revista') await downloadPdfRevista(it.id, it.titulo);
+			const hasCover = !!it?.capaUrl;
+      if (hasCover) await downloadPdfRevista(it.id, it.titulo);
       else await downloadPdfArtigo(it.id, it.titulo);
     } catch {
       alert('Erro ao baixar PDF. Verifique se o arquivo está disponível.');
@@ -52,8 +54,12 @@ export default function ItemCard({ item, tipo, onDelete }: ItemCardProps) {
   const handleDelete = async (it: Artigo | Revista) => {
     if (!window.confirm(`Tem certeza que deseja excluir "${it.titulo}"?`)) return;
 
+		console.log('Deleting item:', it);
+
     try {
-      if (tipo === 'revista') await deleteRevista(it.id);
+			const hasCover = !!it?.capaUrl;
+			console.log('Has cover:', hasCover);
+      if (hasCover) await deleteRevista(it.id);
       else await deleteArtigo(it.id);
 
       alert(`${tipo === 'revista' ? 'Revista' : 'Artigo'} excluído com sucesso.`);
