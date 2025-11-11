@@ -30,9 +30,10 @@ export default function ChatPage() {
     try {
       // 🔹 Chama o backend
       const response = await searchConteudo(input);
+			console.log("Resposta da IA:", response);
 
       // 🔹 Monta a resposta da IA com base nos resultados
-      const resultados = response.resultado?.data ?? [];
+      const resultados = response?.resultado ?? [];
       const text =
         resultados.length > 0
           ? `🤖 Encontrei ${resultados.length} resultado(s):\n\n${resultados

@@ -169,9 +169,15 @@ export default function PublicPage() {
 			formData.append("publicacao", new Date(publicacao).toISOString());
 			formData.append("area", AREA_MAP[area]);
 
-			keywords.forEach(keyword => {
-				console.log("🧠 Adicionando Keyword ID:", keyword);
-				formData.append("KeywordsIds", keyword);
+			 // 🔹 Adiciona Autores
+			autores.forEach((autor) => {
+				formData.append("Autores", autor);
+			});
+
+			// 🔹 Adiciona KeywordsNames
+			keywords.forEach((kw) => {
+				console.log("🧠 Adicionando keyword:", kw);
+				formData.append("KeywordsNames", kw);
 			});
 
 			// 🔹 Adiciona arquivos
