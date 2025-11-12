@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Send, Paperclip, Trash2 } from "lucide-react";
-import { searchConteudo } from "../services/searchService"; // 🔹 Importa o service da IA
+import ReactMarkdown from "react-markdown";
+import { searchConteudo, type Publicacao } from "../services/searchService";
 
 type Message = {
   id: number;
@@ -28,21 +29,26 @@ export default function ChatPage() {
     setLoading(true);
 
     try {
-      // 🔹 Chama o backend
-      const response = await searchConteudo(input);
-			console.log("Resposta da IA:", response);
+      // 🔹 Faz a busca via backend (IA)
+      const resp = await searchConteudo(input);
+      console.log("Resposta da IA:", resp);
 
-      // 🔹 Monta a resposta da IA com base nos resultados
-      const resultados = response?.resultado ?? [];
+      // 🔹 Garante que sempre é um array tipado
+      const resultados: Publicacao[] = Array.isArray(resp.data) ? resp.data : [];
+
+      // 🔹 Monta o texto da resposta com links clicáveis
       const text =
         resultados.length > 0
           ? `🤖 Encontrei ${resultados.length} resultado(s):\n\n${resultados
-              .map(
-                (r: any, i: number) =>
-                  `${i + 1}. **${r.titulo || "Sem título"}** — ${
-                    r.descricao || "Sem descrição"
-                  }`
-              )
+              .map((r, i) => {
+                const titulo = r.titulo || "Sem título";
+                const desc = r.descricao || "Sem descrição";
+                // Se tiver link, cria Markdown de link
+                const tituloFmt = r.pdfUrl
+                  ? `[${titulo}](${r.pdfUrl})`
+                  : `**${titulo}**`;
+                return `${i + 1}. ${tituloFmt} — ${desc}`;
+              })
               .join("\n\n")}`
           : "🤖 Nenhum resultado encontrado para sua pesquisa.";
 
@@ -52,8 +58,10 @@ export default function ChatPage() {
         text,
         timestamp: new Date().toLocaleTimeString(),
       };
+
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error: any) {
+      console.error("❌ Erro ao buscar resultados:", error);
       const aiMessage: Message = {
         id: Date.now() + 1,
         sender: "ai",
@@ -69,7 +77,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      {/* Chat messages */}
+      {/* Área de mensagens */}
       <main className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg) => (
           <div
@@ -85,11 +93,15 @@ export default function ChatPage() {
                   : "bg-white text-gray-800 shadow"
               }`}
             >
-              {msg.text}
+              {/* 🔹 Renderiza Markdown (links e negrito) */}
+              <ReactMarkdown>{msg.text}</ReactMarkdown>
             </div>
-            <span className="text-xs text-gray-400 mt-1">{msg.timestamp}</span>
+            <span className="text-xs text-gray-400 mt-1">
+              {msg.timestamp}
+            </span>
           </div>
         ))}
+
         {loading && (
           <p className="text-gray-500 italic text-center mt-4">
             🤖 Analisando sua pergunta...
@@ -97,11 +109,12 @@ export default function ChatPage() {
         )}
       </main>
 
-      {/* Input */}
+      {/* Área de entrada */}
       <footer className="p-4 bg-white border-t flex items-center space-x-2">
         <button className="p-2 text-gray-500 hover:text-blue-600">
           <Paperclip className="w-5 h-5" />
         </button>
+
         <textarea
           className="flex-1 border rounded-lg p-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-600"
           rows={1}
@@ -110,6 +123,7 @@ export default function ChatPage() {
           placeholder="Pergunte algo sobre os conteúdos do portal..."
           disabled={loading}
         />
+
         <button
           onClick={sendMessage}
           disabled={loading}
@@ -117,9 +131,11 @@ export default function ChatPage() {
         >
           <Send className="w-5 h-5" />
         </button>
+
         <button
           onClick={() => setMessages([])}
           className="p-2 text-red-500 hover:text-red-700"
+          title="Limpar conversa"
         >
           <Trash2 className="w-5 h-5" />
         </button>

@@ -1,27 +1,19 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { registerRequest } from "../services/userService";
+import { User, Lock, Mail, AlertCircle, } from "lucide-react";
 import LogoNejusc from "../assets/Logos/LOGONEJUSC-16.png";
 
-// Interface de dados do formulário
-interface FormData {
-  nome: string;
-  email: string;
-  senha: string;
-  confirmarSenha: string;
-}
-
-const Register: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({
+export default function Register() {
+  const [formData, setFormData] = useState({
     nome: "",
     email: "",
     senha: "",
     confirmarSenha: "",
   });
-
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -40,198 +32,170 @@ const Register: React.FC = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
-    setIsLoading(true);
+    setLoading(true);
 
     if (!formData.nome || !formData.email || !formData.senha || !formData.confirmarSenha) {
       setError("Preencha todos os campos obrigatórios.");
-      setIsLoading(false);
+      setLoading(false);
       return;
     }
 
     if (formData.senha !== formData.confirmarSenha) {
       setError("As senhas não coincidem.");
-      setIsLoading(false);
+      setLoading(false);
       return;
     }
 
     try {
       const hashedPassword = await hashPassword(formData.senha);
-      const userDataToSend = {
+      await registerRequest({
         nome: formData.nome,
         email: formData.email,
         senha: hashedPassword,
-      };
+      });
 
-      await registerRequest(userDataToSend);
-      setSuccess("Cadastro realizado com sucesso! Redirecionando para a tela de Login...");
-
-      setTimeout(() => {
-        setSuccess("");
-        setFormData({ nome: "", email: "", senha: "", confirmarSenha: "" });
-        setIsLoading(false);
-      }, 1500);
+      setSuccess("Cadastro realizado com sucesso!");
+      setFormData({ nome: "", email: "", senha: "", confirmarSenha: "" });
     } catch (error: unknown) {
-      setIsLoading(false);
-      let errorMessage = "Erro de conexão desconhecido ao registrar o usuário.";
-
+      console.error("Erro ao registrar:", error);
+      let msg = "Erro de conexão ao registrar o usuário.";
       if (axios.isAxiosError(error) && error.response) {
-        errorMessage = error.response.data?.message || `Erro do servidor: ${error.response.statusText}`;
+        msg = error.response.data?.message || `Erro: ${error.response.statusText}`;
       }
-
-      console.error("Erro ao registrar o usuário:", error);
-      setError(errorMessage);
+      setError(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 space-y-6 transform hover:scale-[1.01] transition duration-300">
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-          * { font-family: 'Inter', sans-serif; }
-        `}</style>
-
-        {/* Logo e título */}
-        <div className="flex flex-col items-center text-center mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+        {/* Cabeçalho com logo */}
+        <div className="text-center mb-8 flex flex-col items-center">
           <img
             src={LogoNejusc}
             alt="Logo NEJUSC"
-            className="w-24 h-24 object-contain mb-3"
+            className="w-24 h-auto mb-4 drop-shadow-md"
           />
-          <h2 className="text-3xl font-extrabold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center justify-center gap-2">
+            <User className="w-6 h-6 text-blue-600" />
             Criar Conta
-          </h2>
-          <p className="text-gray-600 text-sm mt-1">
-            Crie sua conta para acessar o Portal NEJUSC
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Cadastre-se para acessar o Portal NEJUSC
           </p>
         </div>
 
-        {/* Mensagens de feedback */}
+        {/* Mensagens de erro ou sucesso */}
         {error && (
-          <div className="p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg text-sm transition-all duration-300">
-            <p className="font-semibold">Erro:</p>
-            <p>{error}</p>
+          <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-3 rounded-lg mb-4">
+            <AlertCircle className="w-5 h-5" />
+            <span className="text-sm">{error}</span>
           </div>
         )}
         {success && (
-          <div className="p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg text-sm transition-all duration-300">
-            <p className="font-semibold">Sucesso!</p>
-            <p>{success}</p>
+          <div className="text-green-700 bg-green-50 border border-green-200 p-3 rounded-lg text-sm mb-4">
+            {success}
           </div>
         )}
 
         {/* Formulário */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nome completo *</label>
-            <input
-              type="text"
-              name="nome"
-              value={formData.nome}
-              onChange={handleChange}
-              required
-              disabled={isLoading}
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm"
-              placeholder="Digite seu nome completo"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nome completo
+            </label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                name="nome"
+                value={formData.nome}
+                onChange={handleChange}
+                className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Digite seu nome completo"
+                required
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">E-mail *</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              disabled={isLoading}
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm"
-              placeholder="exemplo@email.com"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              E-mail
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="seu@email.com"
+                required
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Senha *</label>
-            <input
-              type="password"
-              name="senha"
-              value={formData.senha}
-              onChange={handleChange}
-              required
-              disabled={isLoading}
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm"
-              placeholder="Digite uma senha segura"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Senha
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="password"
+                name="senha"
+                value={formData.senha}
+                onChange={handleChange}
+                className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="••••••••"
+                required
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Confirmar senha *</label>
-            <input
-              type="password"
-              name="confirmarSenha"
-              value={formData.confirmarSenha}
-              onChange={handleChange}
-              required
-              disabled={isLoading}
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition shadow-sm"
-              placeholder="Confirme sua senha"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Confirmar senha
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="password"
+                name="confirmarSenha"
+                value={formData.confirmarSenha}
+                onChange={handleChange}
+                className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="••••••••"
+                required
+              />
+            </div>
           </div>
 
-          {/* Botão Cadastrar */}
           <button
             type="submit"
-            disabled={isLoading}
-            className={`w-full font-bold py-3 rounded-xl transition transform duration-150 shadow-md 
-              ${
-                isLoading
-                  ? "bg-blue-400 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-[1.01] active:scale-[0.99]"
-              }`}
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? (
-              <span className="flex items-center justify-center">
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Registrando...
-              </span>
-            ) : (
-              "Cadastrar"
-            )}
+            {loading ? "Cadastrando..." : "Cadastrar"}
           </button>
         </form>
 
-        {/* Link para Login */}
-        <p className="text-center text-sm text-gray-600 pt-2">
-          Já tem uma conta?{" "}
-          <button
-            onClick={() => console.log("Simulação: Navegando para /login")}
-            className="text-blue-600 hover:underline font-semibold focus:outline-none"
-          >
-            Fazer login
-          </button>
-        </p>
+        {/* Rodapé */}
+        <div className="mt-6 text-center space-y-3">
+          <p className="text-sm text-gray-600">
+            Já tem uma conta?{" "}
+            <button
+              onClick={() => (window.location.href = "/login")}
+              className="text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Fazer login
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );
-};
-
-export default Register;
+}

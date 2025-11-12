@@ -2,10 +2,9 @@ import { useState, useMemo } from 'react';
 import { useBiblioteca } from '../../hooks/useBiblioteca';
 import SubNavigation from './SubNavigation';
 import FiltrosEBusca from './FiltrosEBusca';
-import Ordenacao from './Ordenacao';
 import Estatisticas from './Estatisticas';
 import SemestreSection from './SemestreSection';
-import type { FilterState, SortState, SubTab, SemestreData } from '../../types';
+import type { FilterState, SubTab, SemestreData } from '../../types';
 
 export default function BibliotecaView() {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>('artigo');
@@ -15,8 +14,6 @@ export default function BibliotecaView() {
     dados,
     filtros,
     setFiltros,
-    ordenacao,
-    setOrdenacao,
     estatisticas,
     setArtigos,
     setRevistas,
@@ -70,12 +67,6 @@ export default function BibliotecaView() {
         />
 
         <FiltrosEBusca filtros={filtros as FilterState} onFiltrosChange={setFiltros} />
-
-        <Ordenacao
-          ordenacao={ordenacao as SortState}
-          onOrdenacaoChange={setOrdenacao}
-          totalItens={totalItens}
-        />
 
         {dadosFiltrados.length > 0 ? (
           <div>
