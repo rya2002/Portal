@@ -6,6 +6,13 @@ import { downloadPdfArtigo, deleteArtigo } from '../../../../services/artigoServ
 
 type KeywordTag = { id: number; titulo: string };
 
+// ------------------------
+// TYPE GUARD
+// ------------------------
+function isRevista(item: Artigo | Revista): item is Revista {
+  return 'capaUrl' in item;
+}
+
 function normalizeKeywords(k: unknown): KeywordTag[] {
   if (!k) return [];
   const arr = Array.isArray(k) ? k : [];
@@ -37,49 +44,55 @@ export default function ItemCard({ item, tipo, onDelete }: ItemCardProps) {
   const dataFormatada = formatarData(item.publicacao);
 
   const keywords: KeywordTag[] =
-    ((item as any).keywordsNorm as KeywordTag[] | undefined) ??
-    normalizeKeywords((item as any).keywords);
+    (item as any).keywordsNorm ?? normalizeKeywords((item as any).keywords);
 
+  // ------------------------
+  // DOWNLOAD (TYPE SAFE)
+  // ------------------------
   const handleDownload = async (it: Artigo | Revista) => {
-		console.log('Downloading item:', it);
     try {
-			const hasCover = !!it?.capaUrl;
-      if (hasCover) await downloadPdfRevista(it.id, it.titulo);
-      else await downloadPdfArtigo(it.id, it.titulo);
+      if (isRevista(it)) {
+        await downloadPdfRevista(it.id, it.titulo);
+      } else {
+        await downloadPdfArtigo(it.id, it.titulo);
+      }
     } catch {
-      alert('Erro ao baixar PDF. Verifique se o arquivo está disponível.');
+      alert('Erro ao baixar PDF.');
     }
   };
 
+  // ------------------------
+  // DELETE (TYPE SAFE)
+  // ------------------------
   const handleDelete = async (it: Artigo | Revista) => {
     if (!window.confirm(`Tem certeza que deseja excluir "${it.titulo}"?`)) return;
 
-		console.log('Deleting item:', it);
-
     try {
-			const hasCover = !!it?.capaUrl;
-			console.log('Has cover:', hasCover);
-      if (hasCover) await deleteRevista(it.id);
-      else await deleteArtigo(it.id);
+      if (isRevista(it)) {
+        await deleteRevista(it.id);
+      } else {
+        await deleteArtigo(it.id);
+      }
 
       alert(`${tipo === 'revista' ? 'Revista' : 'Artigo'} excluído com sucesso.`);
       onDelete?.(it.id);
     } catch {
-      alert('Erro ao excluir o item. Verifique permissão ou tente novamente.');
+      alert('Erro ao excluir o item.');
     }
   };
 
-  // ---------- REVISTA ----------
-  if (tipo === 'revista') {
-    const revista = item as Revista;
-    const temCapa = revista.capaUrl && revista.capaUrl !== 'null';
+  // ------------------------
+  // RENDERIZAÇÃO DE REVISTA
+  // ------------------------
+  if (tipo === 'revista' && isRevista(item)) {
+    const temCapa = item.capaUrl && item.capaUrl !== 'null';
 
     return (
       <div className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow">
         {temCapa ? (
           <img
-            src={revista.capaUrl!}
-            alt={`Capa da revista ${revista.titulo}`}
+            src={item.capaUrl!}
+            alt={`Capa da revista ${item.titulo}`}
             className="w-24 h-32 object-cover rounded-md shadow-md"
           />
         ) : (
@@ -89,8 +102,8 @@ export default function ItemCard({ item, tipo, onDelete }: ItemCardProps) {
         )}
 
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">{revista.titulo}</h3>
-          <p className="text-sm text-gray-600">{revista.descricao}</p>
+          <h3 className="text-lg font-semibold text-gray-900">{item.titulo}</h3>
+          <p className="text-sm text-gray-600">{item.descricao}</p>
 
           {keywords.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
@@ -113,7 +126,7 @@ export default function ItemCard({ item, tipo, onDelete }: ItemCardProps) {
 
           <div className="flex justify-between mt-3">
             <button
-              onClick={() => handleDownload(revista)}
+              onClick={() => handleDownload(item)}
               className="inline-flex items-center px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700"
             >
               <Download className="h-4 w-4 mr-2" /> Baixar PDF
@@ -121,7 +134,7 @@ export default function ItemCard({ item, tipo, onDelete }: ItemCardProps) {
 
             {canDelete && (
               <button
-                onClick={() => handleDelete(revista)}
+                onClick={() => handleDelete(item)}
                 className="inline-flex items-center px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700"
               >
                 <Trash2 className="h-4 w-4 mr-2" /> Excluir
@@ -133,7 +146,9 @@ export default function ItemCard({ item, tipo, onDelete }: ItemCardProps) {
     );
   }
 
-  // ---------- ARTIGO ----------
+  // ------------------------
+  // RENDERIZAÇÃO DE ARTIGO
+  // ------------------------
   const artigo = item as Artigo;
 
   return (

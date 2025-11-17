@@ -1,6 +1,7 @@
 import api from "./api";
-import { ArtigoDTO, CreateArtigoPayload } from "../types/artigos";
+import { ArtigoDTO } from "../types/artigos";
 
+// GET
 export async function getAllArtigos(): Promise<ArtigoDTO[]> {
   const res = await api.get("/artigos");
   return res.data;
@@ -11,28 +12,30 @@ export async function getArtigoById(id: string): Promise<ArtigoDTO> {
   return res.data;
 }
 
-export async function createArtigo(
-  data: CreateArtigoPayload
-): Promise<ArtigoDTO> {
-  const res = await api.post("/artigos", data, {
+// CREATE usando FormData
+export async function createArtigo(formData: FormData): Promise<ArtigoDTO> {
+  const res = await api.post("/artigos", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
 }
 
+// UPDATE (se quiser manter como JSON)
 export async function updateArtigo(
   id: string,
-  data: Partial<CreateArtigoPayload>
+  data: Partial<ArtigoDTO>
 ): Promise<ArtigoDTO> {
   const res = await api.put(`/artigos/${id}`, data);
   return res.data;
 }
 
+// DELETE
 export async function deleteArtigo(id: string): Promise<boolean> {
   await api.delete(`/artigos/${id}`);
   return true;
 }
 
+// DOWNLOAD
 export async function downloadPdfArtigo(
   id: string,
   titulo = "artigo"
@@ -50,6 +53,7 @@ export async function downloadPdfArtigo(
   window.URL.revokeObjectURL(url);
 }
 
+// UPLOAD PDF (caso queira alterar após a criação)
 export async function uploadPdfArtigo(id: string, file: File): Promise<void> {
   const formData = new FormData();
   formData.append("ArquivoPdf", file);
