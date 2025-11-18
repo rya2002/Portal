@@ -3,8 +3,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // Define a URL base para TODAS as requisições (ex: http://localhost:5186/api)
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5186/api', 
+  // URL da API rodando na máquina virtual
+  baseURL: 'http://10.77.1.56:8080/api', // 'http://localhost:8080/api'
   headers: {
     'Content-Type': 'application/json',
   },

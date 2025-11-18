@@ -1,7 +1,7 @@
 // src/services/forumService.ts
 
 // ⚙️ URL da API — ajusta a porta se for diferente no teu backend
-const API_URL = "https://localhost:7059/api/postagem"; 
+const API_URL = "http://10.77.1.56:8080/api/postagem"; 
 
 // 🔹 Buscar todas as postagens
 export async function getAllPostagens() {

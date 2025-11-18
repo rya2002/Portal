@@ -1,7 +1,7 @@
 import api from "./api";
 
 const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5186/api";
+  import.meta.env.VITE_API_BASE_URL || "http://10.77.1.56:8080/api";
 
 const isValidGuid = (id?: string) =>
   typeof id === "string" &&
