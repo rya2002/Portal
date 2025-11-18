@@ -1,4 +1,4 @@
-import { FileText, BookOpen, Calendar, TrendingUp } from 'lucide-react';
+import { FileText, BookOpen, TrendingUp } from 'lucide-react';
 
 interface EstatisticasProps {
   totalArtigos: number;
@@ -6,7 +6,7 @@ interface EstatisticasProps {
   totalSemestres: number;
 }
 
-export default function Estatisticas({ totalArtigos, totalRevistas, totalSemestres }: EstatisticasProps) {
+export default function Estatisticas({ totalArtigos, totalRevistas }: EstatisticasProps) {
   const cards = [
     {
       titulo: 'Artigos Publicados',
@@ -21,16 +21,10 @@ export default function Estatisticas({ totalArtigos, totalRevistas, totalSemestr
       cor: 'green'
     },
     {
-      titulo: 'Semestres com Publicação',
-      valor: totalSemestres,
-      icon: Calendar,
-      cor: 'purple'
-    },
-    {
       titulo: 'Total de Publicações',
       valor: totalArtigos + totalRevistas,
       icon: TrendingUp,
-      cor: 'orange'
+      cor: 'purple'
     }
   ];
 

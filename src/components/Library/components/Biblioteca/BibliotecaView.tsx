@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { useBiblioteca } from '../../hooks/useBiblioteca'; 
 import SubNavigation from './SubNavigation'; 
 import FiltrosEBusca from './FiltrosEBusca';
-import Ordenacao from './Ordenacao';
 import Estatisticas from './Estatisticas';
 import SemestreSection from './SemestreSection';
-import type { FilterState, SortState, SubTab, SemestreData } from '../../types'; 
+import type { FilterState, SubTab, SemestreData } from '../../types'; 
 
 export default function BibliotecaView() {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>('artigo');
@@ -14,10 +13,10 @@ export default function BibliotecaView() {
     dados,
     filtros,
     setFiltros,
-    ordenacao,
-    setOrdenacao,
-    estatisticas
-  } = useBiblioteca();
+    estatisticas,
+    removerArtigo,
+    removerRevista
+  } = useBiblioteca(); // ← agora inclui as funções de remover
 
   const tipoAtivo: SubTab = activeSubTab;
 
@@ -32,6 +31,7 @@ export default function BibliotecaView() {
         onSubTabChange={setActiveSubTab}
       />
 
+      {/* Botão SciELO */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 flex justify-end">
         <a
           href="https://www.scielo.org/"
@@ -43,7 +43,9 @@ export default function BibliotecaView() {
         </a>
       </div>
 
+      {/* Conteúdo */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
         <Estatisticas
           totalArtigos={estatisticas.totalArtigos}
           totalRevistas={estatisticas.totalRevistas}
@@ -55,12 +57,6 @@ export default function BibliotecaView() {
           onFiltrosChange={setFiltros}
         />
 
-        <Ordenacao
-          ordenacao={ordenacao as SortState}
-          onOrdenacaoChange={setOrdenacao}
-          totalItens={totalItens}
-        />
-
         {dados.length > 0 ? (
           <div>
             {dados.map((semestreData: SemestreData) => (
@@ -68,6 +64,10 @@ export default function BibliotecaView() {
                 key={semestreData.semestre}
                 semestreData={semestreData}
                 tipoAtivo={tipoAtivo}
+
+                // 🔥 Agora enviamos as funções necessárias
+                onRemoveArtigo={removerArtigo}
+                onRemoveRevista={removerRevista}
               />
             ))}
           </div>
@@ -82,7 +82,6 @@ export default function BibliotecaView() {
               Nenhum resultado encontrado
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-
               Tente ajustar seus filtros de busca
             </p>
           </div>

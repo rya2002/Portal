@@ -28,7 +28,7 @@ function getSemestreLabel(dateString?: string): string {
 }
 
 export function useBiblioteca() {
-  // 🔹 Inicializa a partir do localStorage
+  // Inicializa com dados do localStorage
   const [artigos, setArtigos] = useState<Artigo[]>(() => {
     const stored = localStorage.getItem('artigos');
     return stored ? JSON.parse(stored) : [];
@@ -52,7 +52,7 @@ export function useBiblioteca() {
     direction: 'desc'
   });
 
-  // 🔹 Salva no localStorage sempre que mudar
+  // Salva no localStorage ao mudar
   useEffect(() => {
     localStorage.setItem('artigos', JSON.stringify(artigos));
   }, [artigos]);
@@ -61,55 +61,98 @@ export function useBiblioteca() {
     localStorage.setItem('revistas', JSON.stringify(revistas));
   }, [revistas]);
 
-  // 🔎 Aplica filtros e organiza por semestre
+  // Filtros e agrupamento
   const dados: SemestreData[] = useMemo(() => {
     const map = new Map<string, SemestreData>();
 
     const pushArticle = (a: Artigo) => {
       const pub = getPublicationDate(a) ?? '';
       const key = getSemestreLabel(pub);
-      if (!map.has(key)) map.set(key, { semestre: key, artigos: [], revistas: [] });
+
+      if (!map.has(key)) {
+        map.set(key, { semestre: key, artigos: [], revistas: [] });
+      }
       map.get(key)!.artigos.push(a);
     };
 
     const pushRevista = (r: Revista) => {
       const pub = getPublicationDate(r) ?? '';
       const key = getSemestreLabel(pub);
-      if (!map.has(key)) map.set(key, { semestre: key, artigos: [], revistas: [] });
+
+      if (!map.has(key)) {
+        map.set(key, { semestre: key, artigos: [], revistas: [] });
+      }
       map.get(key)!.revistas.push(r);
     };
 
-    const q = filtros.busca?.trim()?.toLowerCase() || '';
-    const matchesText = (txt?: string) => !q || (txt || '').toLowerCase().includes(q);
+    const q = filtros.busca.trim().toLowerCase();
+    const matchesText = (txt?: string) =>
+      !q || (txt || '').toLowerCase().includes(q);
 
+    // Revistas
     if (filtros.tipo === 'revistas' || filtros.tipo === 'todos') {
       revistas.forEach(r => {
-        if (filtros.semestre && getSemestreLabel(getPublicationDate(r)) !== filtros.semestre) return;
-        if (filtros.area && r.area?.toLowerCase() !== filtros.area.toLowerCase()) return;
-        if (filtros.autor && !(r.autores || []).some(a => a.toLowerCase().includes(filtros.autor.toLowerCase()))) return;
+        if (filtros.semestre &&
+            getSemestreLabel(getPublicationDate(r)) !== filtros.semestre) return;
+
+        if (filtros.area &&
+            r.area?.toLowerCase() !== filtros.area.toLowerCase()) return;
+
+        if (filtros.autor &&
+            !(r.autores || []).some(a =>
+              a.toLowerCase().includes(filtros.autor.toLowerCase())
+            )) return;
+
         if (q) {
-          if (!(matchesText(r.titulo) || matchesText(r.descricao) || matchesText(r.area) || (r.autores || []).some(a => a.toLowerCase().includes(q)))) return;
+          const ok =
+            matchesText(r.titulo) ||
+            matchesText(r.descricao) ||
+            matchesText(r.area) ||
+            (r.autores || []).some(a => a.toLowerCase().includes(q));
+
+          if (!ok) return;
         }
+
         pushRevista(r);
       });
     }
 
+    // Artigos
     if (filtros.tipo === 'artigos' || filtros.tipo === 'todos') {
       artigos.forEach(a => {
-        if (filtros.semestre && getSemestreLabel(getPublicationDate(a)) !== filtros.semestre) return;
-        if (filtros.area && a.area?.toLowerCase() !== filtros.area.toLowerCase()) return;
-        if (filtros.autor && !(a.autores || []).some(ar => ar.toLowerCase().includes(filtros.autor.toLowerCase()))) return;
+        if (filtros.semestre &&
+            getSemestreLabel(getPublicationDate(a)) !== filtros.semestre) return;
+
+        if (filtros.area &&
+            a.area?.toLowerCase() !== filtros.area.toLowerCase()) return;
+
+        if (filtros.autor &&
+            !(a.autores || []).some(ar =>
+              ar.toLowerCase().includes(filtros.autor.toLowerCase())
+            )) return;
+
         if (q) {
-          if (!(matchesText(a.titulo) || matchesText(a.descricao) || matchesText(a.area) || (a.autores || []).some(ar => ar.toLowerCase().includes(q)))) return;
+          const ok =
+            matchesText(a.titulo) ||
+            matchesText(a.descricao) ||
+            matchesText(a.area) ||
+            (a.autores || []).some(ar =>
+              ar.toLowerCase().includes(q)
+            );
+
+          if (!ok) return;
         }
+
         pushArticle(a);
       });
     }
 
+    // Ordenação dos semestres
     const arr = Array.from(map.values());
     arr.sort((a, b) => {
       const yearA = Number(a.semestre.match(/\d{4}/)?.[0] || 0);
       const yearB = Number(b.semestre.match(/\d{4}/)?.[0] || 0);
+
       if (yearA !== yearB) return yearB - yearA;
       return a.semestre.localeCompare(b.semestre);
     });
@@ -117,14 +160,14 @@ export function useBiblioteca() {
     return arr;
   }, [artigos, revistas, filtros]);
 
-  // 📊 Estatísticas
+  // Estatísticas
   const estatisticas: Estatisticas = useMemo(() => ({
     totalArtigos: artigos.length,
     totalRevistas: revistas.length,
     totalSemestres: dados.length,
   }), [artigos.length, revistas.length, dados.length]);
 
-  // ➕ Funções para adicionar
+  // ➕ ADICIONAR
   const adicionarArtigo = (novo: Artigo) => {
     setArtigos(prev => [...prev, novo]);
   };
@@ -133,6 +176,16 @@ export function useBiblioteca() {
     setRevistas(prev => [...prev, nova]);
   };
 
+  // ❌ REMOVER (NOVO)
+  const removerArtigo = (id: string) => {
+    setArtigos(prev => prev.filter(a => a.id !== id));
+  };
+
+  const removerRevista = (id: string) => {
+    setRevistas(prev => prev.filter(r => r.id !== id));
+  };
+
+  // Expor tudo
   return {
     dados,
     filtros,
@@ -143,6 +196,8 @@ export function useBiblioteca() {
     artigos,
     revistas,
     adicionarArtigo,
-    adicionarRevista
+    adicionarRevista,
+    removerArtigo,   // 🔥 novo
+    removerRevista   // 🔥 novo
   };
 }

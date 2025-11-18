@@ -13,7 +13,6 @@ export interface Revista {
   id: string;
   titulo: string;
   descricao: string;
-  edicao: string;
   capa: string;
   publicacao: string;
   arquivopdf: string;
