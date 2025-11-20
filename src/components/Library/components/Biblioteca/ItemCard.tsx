@@ -13,12 +13,30 @@ function isRevista(item: Artigo | Revista): item is Revista {
   return 'capaUrl' in item;
 }
 
-function normalizeKeywords(k: unknown): KeywordTag[] {
-  if (!k) return [];
-  const arr = Array.isArray(k) ? k : [];
+// ------------------------
+// NORMALIZAÇÃO DAS KEYWORDS
+// Aceita:
+// - keywordsNorm
+// - keywords
+// - Keywords (PascalCase)
+// - array de string
+// - array de objetos
+// - null/undefined
+// ------------------------
+function extractKeywords(item: any): KeywordTag[] {
+  const raw =
+    item.keywordsNorm ??
+    item.keywords ??
+    item.Keywords ??
+    [];
+
+  // Garantir que veio array
+  const arr = Array.isArray(raw) ? raw : [];
+
   return arr.map((x: any): KeywordTag => {
-    if (typeof x === 'string') return { id: 0, titulo: x };
-    return { id: Number(x?.id) || 0, titulo: String(x?.titulo ?? '') };
+    if (typeof x === 'string') { return { id: 0, titulo: x }; }
+
+    return { id: Number(x?.id ?? 0), titulo: String(x?.titulo ?? '') };
   });
 }
 
@@ -43,8 +61,8 @@ export default function ItemCard({ item, tipo, onDelete }: ItemCardProps) {
 
   const dataFormatada = formatarData(item.publicacao);
 
-  const keywords: KeywordTag[] =
-    (item as any).keywordsNorm ?? normalizeKeywords((item as any).keywords);
+  // Keywords normalizadas (seguras)
+  const keywords = extractKeywords(item);
 
   // ------------------------
   // DOWNLOAD (TYPE SAFE)

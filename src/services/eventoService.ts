@@ -1,6 +1,6 @@
 import { Event, CreateEventData, UpdateEventData } from "../components/Event/types";
 
-const API_URL = "https://localhost:7032/api/evento"; // 🔹 Ajuste conforme o backend
+const API_URL = "https://localhost:5186/api/evento"; // 🔹 Ajuste conforme o backend
 
 // 🔹 GET - Buscar todos os eventos
 export async function getAllEventosRequest(): Promise<Event[]> {
