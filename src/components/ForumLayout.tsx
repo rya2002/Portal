@@ -8,32 +8,47 @@ import { useAuth } from '../contexts/AuthContext';
 
 export function ForumLayout() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'discussions' | 'manage' | 'request-publication'>('discussions');
+
+  const [activeTab, setActiveTab] = useState<
+    'discussions' | 'manage' | 'request-publication'
+  >('discussions');
+
+  const role = user?.userType?.toLowerCase() || "visitante";
+  const isAdmin = ["administrador", "professor"].includes(role);
+  const isAuthenticated = role !== "visitante";
 
   const content = useMemo(() => {
-    const isAdmin = ['administrador', 'professor'].includes(user?.userType || '');
-    const isAuthenticated    = user?.userType && user?.userType !== 'visitante';
-
     switch (activeTab) {
-      case 'discussions':
+      case "discussions":
         return <ForumDiscussions />;
 
-      case 'manage':
+      case "manage":
         return isAdmin ? <AdminDashboard /> : <ForumDiscussions />;
 
-      case 'request-publication':
+      case "request-publication":
         return isAuthenticated
-          ? <PublicationRequest onBack={() => setActiveTab('discussions')} />
+          ? (
+              <PublicationRequest
+                onBack={() => setActiveTab("discussions")}
+                onSubmitPost={() => setActiveTab("discussions")}
+              />
+            )
           : <ForumDiscussions />;
 
       default:
         return <ForumDiscussions />;
     }
-  }, [activeTab, user]);
+  }, [activeTab, isAdmin, isAuthenticated]);
 
   return (
     <div className="min-h-screen flex flex-col">
-      <ForumNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <ForumNavigation
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        isAdmin={isAdmin}
+        isAuthenticated={isAuthenticated}
+      />
+
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {content}
       </main>
